@@ -1,0 +1,9 @@
+[package]
+name = "start"
+version = "0.1.0"
+edition = "2024"
+description = "start"
+authors = ["Leon Farafonov <me@leofaraf.com>"]
+license = "MIT"
+
+[dependencies]
