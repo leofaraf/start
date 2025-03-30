@@ -2,7 +2,7 @@
 name = "start"
 version = "0.1.0"
 edition = "2024"
-description = "start"
+description = "StartDB – Start Bridging Worlds."
 authors = ["Leon Farafonov <me@leofaraf.com>"]
 license = "MIT"
 
