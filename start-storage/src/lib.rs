@@ -1,6 +1,8 @@
-use std::{error::Error, fs::OpenOptions, ops::{Index, IndexMut}, path::PathBuf};
+use std::{error::Error, fs::{File, OpenOptions}, ops::{Index, IndexMut}, path::PathBuf};
 
 use memmap2::MmapMut;
+
+type HandleResult<T> = Result<T, Box<dyn Error>>;
 
 pub enum StartStorage {     
     InMemory(Vec<u8>),
@@ -18,7 +20,7 @@ impl StartStorage {
         }
     }
 
-    pub fn resize(&mut self, new_len: usize) -> Result<(), Box<dyn Error>> {
+    pub fn resize(&mut self, new_len: usize) -> HandleResult<()> {
         match self {
             StartStorage::InMemory(vec) => {
                 vec.resize(new_len, 0);
@@ -36,6 +38,16 @@ impl StartStorage {
             },
         }
         Ok(())
+    }
+
+    pub fn in_memory() -> Self {
+        Self::InMemory(vec![])
+    }
+
+    pub fn embedded(path: PathBuf) -> HandleResult<Self> {
+        let file = File::open(&path)?;
+        let mmap = unsafe { MmapMut::map_mut(&file) }?;
+        Ok(Self::Mapped { path, mmap })
     }
 }
 

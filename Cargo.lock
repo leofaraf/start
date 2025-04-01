@@ -386,6 +386,7 @@ dependencies = [
  "memmap2",
  "rmp-serde",
  "serde",
+ "start-storage",
 ]
 
 [[package]]

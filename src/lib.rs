@@ -1,11 +1,21 @@
-use std::path::PathBuf;
+use std::{error::Error, path::PathBuf};
 
-pub struct StartDB;
+use start_storage::StartStorage;
 
-pub fn in_memory() -> StartDB {
-    StartDB
+type HandleResult<T> = Result<T, Box<dyn Error>>;
+
+pub struct StartDB {
+    ss: StartStorage
 }
 
-pub fn embedded(pathname: PathBuf) -> StartDB {
-    StartDB
+pub fn in_memory() -> StartDB {
+    StartDB {
+        ss: StartStorage::in_memory()
+    }
+}
+
+pub fn embedded(path: PathBuf) -> HandleResult<StartDB> {
+    Ok(StartDB {
+        ss: StartStorage::embedded(path)?
+    })
 }
