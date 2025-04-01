@@ -2,6 +2,8 @@ use std::{error::Error, path::PathBuf};
 
 use start_storage::StartStorage;
 
+mod systypes;
+
 type HandleResult<T> = Result<T, Box<dyn Error>>;
 
 pub struct StartDB {

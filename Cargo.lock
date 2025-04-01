@@ -387,6 +387,7 @@ dependencies = [
  "rmp-serde",
  "serde",
  "start-storage",
+ "uuid",
 ]
 
 [[package]]

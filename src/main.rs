@@ -1,3 +1,4 @@
 fn main() {
-    println!("Hello, world!");
+    let db = start::in_memory();
+    
 }
