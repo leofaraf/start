@@ -6,7 +6,7 @@ pub fn insert_one(
     ss: &mut StartStorage,
     collection_offset: usize,
     raw_document: RawDocument
-) {
+) -> usize {
     println!("Inserting...");
     // Parsing collection
     ensure_capacity(ss, collection_offset + 56).unwrap();
@@ -44,7 +44,9 @@ pub fn insert_one(
             next_offset = raw_doc.next_document as usize; 
         };
     }
-    println!("Inserted")
+    println!("Inserted");
+
+    new_doc_offset
 }
 
 pub fn insert_one_by_offset(

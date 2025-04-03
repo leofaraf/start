@@ -4,7 +4,7 @@ use crate::{systypes::{collection::{Collection, SYS_MASTER_OFFSET}, document::{D
 
 use super::one::insert_one;
 
-pub fn insert_collection(ss: &mut StartStorage, name: &str) {
+pub fn insert_collection(ss: &mut StartStorage, name: &str) -> usize {
     let mut bytes = [0u8; 32];
     bytes[0..name.len()].copy_from_slice(name.as_bytes());
 
@@ -17,7 +17,7 @@ pub fn insert_collection(ss: &mut StartStorage, name: &str) {
         next_document: 0,
         content_length: Collection::len(),
         content: collection.to_bytes(),
-    });
+    })
 }
 
 pub fn insert_collection_by_offset(

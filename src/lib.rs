@@ -4,7 +4,7 @@ use start_storage::StartStorage;
 use systypes::{collection::{SYS_MASTER, SYS_MASTER_OFFSET, SYS_TRASH, SYS_TRASH_OFFSET}, document::RawDocument, header::Header};
 use sysutils::{header::HeaderError, insert::one::{insert_one, insert_one_by_offset}};
 
-mod systypes;
+pub mod systypes;
 pub mod sysutils;
 pub mod utils;
 
