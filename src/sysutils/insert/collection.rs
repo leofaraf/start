@@ -1,10 +1,24 @@
 use start_storage::StartStorage;
 
-use crate::{systypes::{collection::Collection, document::{Document, RawDocument}}, sysutils::capacity::ensure_capacity};
+use crate::{systypes::{collection::{Collection, SYS_MASTER_OFFSET}, document::{Document, RawDocument}}, sysutils::capacity::ensure_capacity};
 
-// pub fn insert_collection(ss: &mut StartStorage, name: &str) -> Collection {
+use super::one::insert_one;
 
-// }
+pub fn insert_collection(ss: &mut StartStorage, name: &str) {
+    let mut bytes = [0u8; 32];
+    bytes[0..name.len()].copy_from_slice(name.as_bytes());
+
+    let collection = Collection {
+        name: bytes,
+        next_document: 0,
+    };
+
+    insert_one(ss, SYS_MASTER_OFFSET as usize, RawDocument {
+        next_document: 0,
+        content_length: Collection::len(),
+        content: collection.to_bytes(),
+    });
+}
 
 pub fn insert_collection_by_offset(
     ss: &mut StartStorage,

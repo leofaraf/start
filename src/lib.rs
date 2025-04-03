@@ -2,7 +2,7 @@ use std::{error::Error, path::PathBuf};
 
 use start_storage::StartStorage;
 use systypes::{collection::{SYS_MASTER, SYS_MASTER_OFFSET, SYS_TRASH, SYS_TRASH_OFFSET}, document::RawDocument, header::Header};
-use sysutils::{header::HeaderError, insert::insert_one::insert_document_by_offset};
+use sysutils::{header::HeaderError, insert::one::{insert_one, insert_one_by_offset}};
 
 mod systypes;
 pub mod sysutils;
@@ -17,12 +17,12 @@ pub struct StartDB {
 
 fn get_header(ss: &mut StartStorage) -> Header {
     if ss.len() == 0 {
-        insert_document_by_offset(ss, SYS_MASTER_OFFSET as usize, RawDocument {
-            next_document: SYS_TRASH_OFFSET,
+        insert_one_by_offset(ss, SYS_MASTER_OFFSET as usize, RawDocument {
+            next_document: 0,
             content_length: 40,
             content: SYS_MASTER.to_bytes(),
         });
-        insert_document_by_offset(ss, SYS_TRASH_OFFSET as usize, RawDocument {
+        insert_one(ss, SYS_MASTER_OFFSET as usize, RawDocument {
             next_document: 0,
             content_length: 40,
             content: SYS_TRASH.to_bytes(),

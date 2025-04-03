@@ -1,6 +1,14 @@
+use start_storage::StartStorage;
+
 use crate::systypes::collection::Collection;
 
+use super::document::DOCUMENT_CONTENT_OFFSET;
+
 impl Collection {
+    pub const fn len() -> u64 {
+        40
+    }
+
     pub fn parse(content: &[u8]) -> Collection {
         Collection {
             name: Self::parse_name(&content),
@@ -25,5 +33,15 @@ impl Collection {
         bytes.extend_from_slice(&self.name);
         bytes.extend_from_slice(&self.next_document.to_le_bytes());
         bytes
+    }
+
+    pub fn write_next_document(
+        ss: &mut StartStorage,
+        offset: usize,
+        next_offset: usize
+    ) {
+        ss[offset+DOCUMENT_CONTENT_OFFSET+32
+        ..offset+DOCUMENT_CONTENT_OFFSET+40]
+        .copy_from_slice(&next_offset.to_le_bytes());
     }
 }

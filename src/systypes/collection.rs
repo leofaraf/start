@@ -8,7 +8,7 @@ pub const SYS_MASTER_OFFSET: u64 = 100;
 pub const SYS_MASTER: Collection = Collection {
     name: *b"sys-master\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0",
     // master next document is next table
-    next_document: SYS_TRASH_OFFSET
+    next_document: 0
 };
 
 pub const SYS_TRASH_OFFSET: u64 = 156;
