@@ -1,5 +1,7 @@
 use std::{error::Error, path::PathBuf};
 
+use query_builder::{insert_query::InsertQuery, QueryBuilder};
+use serde::Serialize;
 use start_storage::StartStorage;
 use systypes::{collection::{SYS_MASTER, SYS_MASTER_OFFSET, SYS_TRASH, SYS_TRASH_OFFSET}, document::RawDocument, header::Header};
 use sysutils::{header::HeaderError, insert::one::{insert_one, insert_one_by_offset}};
@@ -7,12 +9,23 @@ use sysutils::{header::HeaderError, insert::one::{insert_one, insert_one_by_offs
 pub mod systypes;
 pub mod sysutils;
 pub mod utils;
+pub mod query_builder;
 
 type HandleResult<T> = Result<T, Box<dyn Error>>;
 
 pub struct StartDB {
     pub ss: StartStorage,
     header: Header
+}
+
+impl StartDB {
+    pub fn query_builder(&mut self) -> QueryBuilder {
+        QueryBuilder::new(self)
+    }
+
+    pub fn insert<T: Serialize>(&mut self, document: T) -> InsertQuery {
+        InsertQuery::new(self).insert(document)
+    }
 }
 
 fn get_header(ss: &mut StartStorage) -> Header {

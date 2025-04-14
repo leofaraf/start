@@ -45,7 +45,11 @@ impl StartStorage {
     }
 
     pub fn embedded(path: PathBuf) -> HandleResult<Self> {
-        let file = File::open(&path)?;
+        let file = OpenOptions::new()
+            .read(true)
+            .write(true)
+            .create(true)
+            .open(&path)?;
         let mmap = unsafe { MmapMut::map_mut(&file) }?;
         Ok(Self::Mapped { path, mmap })
     }
