@@ -1,6 +1,6 @@
 use std::{error::Error, path::PathBuf};
 
-use query_builder::{insert_query::InsertQuery, QueryBuilder};
+use query_builder::{find_query::FindQuery, insert_query::InsertQuery};
 use serde::Serialize;
 use start_storage::StartStorage;
 use systypes::{collection::{SYS_MASTER, SYS_MASTER_OFFSET, SYS_TRASH, SYS_TRASH_OFFSET}, document::RawDocument, header::Header};
@@ -19,12 +19,12 @@ pub struct StartDB {
 }
 
 impl StartDB {
-    pub fn query_builder(&mut self) -> QueryBuilder {
-        QueryBuilder::new(self)
-    }
-
     pub fn insert<T: Serialize>(&mut self, document: T) -> InsertQuery {
         InsertQuery::new(self).insert(document)
+    }
+
+    pub fn find(&mut self) -> FindQuery {
+        FindQuery::new(self)
     }
 }
 

@@ -1,11 +1,11 @@
 use std::error::Error;
 
-use serde::Serialize;
-use start::{systypes::document::RawDocument, sysutils::find::{find_collection::find_collection, scan::scan}, utils::insert::insert_one};
+use serde::{Deserialize, Serialize};
+use start::utils::find::find_many;
 
 type HandleResult<T> = Result<T, Box<dyn Error>>;
 
-#[derive(Serialize)]
+#[derive(Serialize, Deserialize, Debug)]
 struct Agent {
     name: String,
     r#type: String,
@@ -28,12 +28,13 @@ fn main() -> HandleResult<()> {
         })
         .into("agents")?;
 
+    let many: Vec<Agent> = db.find().from("agents")?;
+
     // insert_one(&mut db.ss, "students", "leon".as_bytes().to_vec());
-    let students = find_collection(&mut db.ss, "agents");
-    if let Some(table) = students {
-        scan(&mut db.ss, table);
+    // let many = find_many(&mut db.ss, "agents");
+    for doc in many {
+        println!("{:?}", doc);
     }
-    println!("students col: {:?}", students);
 
     Ok(())
 }
