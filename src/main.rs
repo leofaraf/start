@@ -28,10 +28,24 @@ fn main() -> HandleResult<()> {
         })
         .into("agents")?;
 
-    let many: Vec<Agent> = db.find().from("agents")?;
+    db
+        .insert(Agent {
+            name: "Cloude".into(),
+            r#type: "AI".into(),
+        })
+        .into("agents")?;
 
-    // insert_one(&mut db.ss, "students", "leon".as_bytes().to_vec());
-    // let many = find_many(&mut db.ss, "agents");
+    db
+        .insert(Agent {
+            name: "RuleBot3000".into(),
+            r#type: "Rule-Based".into(),
+        })
+        .into("agents")?;
+
+    let many: Vec<Agent> = db.find()
+        .filter("type", "AI")
+        .from("agents")?;
+
     for doc in many {
         println!("{:?}", doc);
     }
