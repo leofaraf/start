@@ -34,10 +34,10 @@ impl<'a> FindQuery<'a> {
 
         let mut results = Vec::new();
         for doc in docs {
-            match serde_json::from_slice::<serde_json::Value>(&doc.content) {
+            match bson::from_slice::<bson::Document>(&doc.content) {
                 Ok(json_value) => {
                     if self.filter.as_ref().map_or(true, |f| matches_filter(&json_value, f)) {
-                        match serde_json::from_value::<T>(json_value) {
+                        match bson::from_document::<T>(json_value) {
                             Ok(value) => results.push(value),
                             Err(err) => eprintln!("Deserialization error: {}", err),
                         }

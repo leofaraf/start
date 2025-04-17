@@ -386,10 +386,17 @@ dependencies = [
  "memmap2",
  "rmp-serde",
  "serde",
- "serde_json",
  "start-storage",
  "uuid",
 ]
+
+[[package]]
+name = "start-core"
+version = "0.1.0"
+
+[[package]]
+name = "start-sql"
+version = "0.1.0"
 
 [[package]]
 name = "start-storage"

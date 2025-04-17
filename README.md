@@ -70,12 +70,13 @@ insertCollection [x]
 insertDML [x]
 find [x]
 findDML [x]
-find({args}) [ ]
-storage-pages [ ]
-limit [ ]
-insertMany [ ]
-bson [ ]
-delete [ ]
+find({args}) [x]
+
+- [ ] bson
+- [ ] limit
+- [ ] insertMany
+- [ ] storage-pages
+- [ ] delete
 
 ## How does it works?
 

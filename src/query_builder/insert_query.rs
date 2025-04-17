@@ -3,7 +3,7 @@ use std::error::Error;
 use serde::Serialize;
 
 use crate::{
-    systypes::document::RawDocument, sysutils::{find::find_collection::find_collection, insert::collection::insert_collection}, utils::insert::insert_one, StartDB
+    utils::insert::insert_one, StartDB
 };
 
 type HandleResult<T> = Result<T, Box<dyn Error>>;
@@ -22,7 +22,7 @@ impl<'a> InsertQuery<'a> {
     }
 
     pub fn insert<T: Serialize>(mut self, document: T) -> Self {
-        match serde_json::to_vec(&document) {
+        match bson::to_vec(&document) {
             Ok(bytes) => self.document = Some(bytes),
             Err(err) => {
                 eprintln!("Serialization error: {}", err);
