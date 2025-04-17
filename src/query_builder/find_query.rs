@@ -7,23 +7,25 @@ use crate::{
     StartDB,
 };
 
+use super::filtering::{matches_filter, Filter};
+
 type HandleResult<T> = Result<T, Box<dyn Error>>;
 
 pub struct FindQuery<'a> {
     db: &'a mut StartDB,
-    filters: HashMap<String, String>,
+    filter: Option<Filter>,
 }
 
 impl<'a> FindQuery<'a> {
     pub fn new(db: &'a mut StartDB) -> Self {
         Self {
             db,
-            filters: HashMap::new(),
+            filter: None,
         }
     }
 
-    pub fn filter(mut self, key: &str, value: &str) -> Self {
-        self.filters.insert(key.to_string(), value.to_string());
+    pub fn filter(mut self, filter: Filter) -> Self {
+        self.filter = Some(filter);
         self
     }
 
@@ -32,28 +34,19 @@ impl<'a> FindQuery<'a> {
 
         let mut results = Vec::new();
         for doc in docs {
-            match serde_json::from_slice::<T>(&doc.content) {
-                Ok(value) => {
-                    // Apply filters here
-                    if self.filters.is_empty() || self.matches_filter(&value) {
-                        results.push(value);
+            match serde_json::from_slice::<serde_json::Value>(&doc.content) {
+                Ok(json_value) => {
+                    if self.filter.as_ref().map_or(true, |f| matches_filter(&json_value, f)) {
+                        match serde_json::from_value::<T>(json_value) {
+                            Ok(value) => results.push(value),
+                            Err(err) => eprintln!("Deserialization error: {}", err),
+                        }
                     }
                 }
-                Err(err) => eprintln!("Deserialization error: {}", err),
+                Err(err) => eprintln!("Failed to parse JSON for filtering: {}", err),
             }
         }
 
         Ok(results)
-    }
-
-    fn matches_filter<T: serde::Serialize>(&self, item: &T) -> bool {
-        let json_value = serde_json::to_value(item).unwrap_or_default();
-
-        for (k, v) in &self.filters {
-            if json_value.get(k).map(|jv| jv == v).unwrap_or(false) == false {
-                return false;
-            }
-        }
-        true
     }
 }
