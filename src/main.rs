@@ -1,7 +1,7 @@
-use std::error::Error;
+use std::{error::Error, time::Instant};
 
 use serde::{Deserialize, Serialize};
-use start::{query_builder::filtering::{value::Value, Filter}, utils::find::find_many};
+use start::query_builder::filtering::{value::Value, Filter};
 
 type HandleResult<T> = Result<T, Box<dyn Error>>;
 
@@ -13,8 +13,12 @@ struct Agent {
 }
 
 fn main() -> HandleResult<()> {
+    let start = Instant::now();
+    let inst = start;
     let mut db = start::in_memory();
+    println!("Db inizialization took: {}ms", inst.elapsed().as_millis());
 
+    let inst = Instant::now();
     db
         .insert(Agent {
             name: "ChatGPT".into(),
@@ -38,13 +42,16 @@ fn main() -> HandleResult<()> {
             score: 100
         })
         .into("agents")?;
+    println!("Inserting took: {}ms", inst.elapsed().as_millis());
 
+    let inst = Instant::now();
     let many: Vec<Agent> = db.find()
         .filter(Filter::And(vec![
             Filter::Eq("type".into(), Value::String("AI".into())),
             Filter::Gt("score".into(), Value::Integer(80)),
         ]))
         .from("agents")?;
+    println!("Filtering took: {}ms", inst.elapsed().as_millis());
 
     // output:
     // Agent { name: "ChatGPT", type: "AI", score: 85 }
@@ -52,6 +59,8 @@ fn main() -> HandleResult<()> {
     for doc in many {
         println!("{:?}", doc);
     }
+
+    println!("Main took: {}ms", start.elapsed().as_millis());
 
     Ok(())
 }
