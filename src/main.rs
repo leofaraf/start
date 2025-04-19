@@ -20,6 +20,12 @@ fn main() -> HandleResult<()> {
     commands::insert::insert(&ctx, "students", bson::to_bson(&Agent {
         name: "ChatGPT".to_string(),
         r#type: "AI".to_string(),
+        score: 85,
+    }).unwrap());
+
+    commands::insert::insert(&ctx, "students", bson::to_bson(&Agent {
+        name: "DeepSeek".to_string(),
+        r#type: "AI".to_string(),
         score: 80,
     }).unwrap());
 

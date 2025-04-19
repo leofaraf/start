@@ -21,11 +21,11 @@ pub fn execute_plan(op_ctx: OperationContext, plan: QueryPlan) -> Vec<Bson> {
 
         next_offset = 0;
 
-        // if next_offset == offset as usize {
-        //     next_offset = plan.collection.next_document as usize; // Move to the next document
-        // } else {
-        //     next_offset = raw_doc.next_document as usize; // Move to the next document
-        // }
+        if next_offset == plan.collection.next_document as usize {
+            next_offset = plan.collection.next_document as usize; // Move to the next document
+        } else {
+            next_offset = raw_doc.next_document as usize; // Move to the next document
+        }
     }
 
 
