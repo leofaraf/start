@@ -4,8 +4,8 @@ use super::filtering::Filter;
 
 pub struct QueryPlanner;
 pub struct QueryPlan {
-    root: PlanNode,
-    collection: Collection
+    pub root: PlanNode,
+    pub collection: Collection
 }
 
 impl QueryPlanner {

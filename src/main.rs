@@ -17,6 +17,8 @@ fn main() -> HandleResult<()> {
 
     let ctx = service_context::in_memory();
 
+    
+
     let result = commands::find::find(
         &ctx,
         "students",

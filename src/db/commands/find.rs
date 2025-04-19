@@ -1,8 +1,7 @@
 use bson::Bson;
 
-use crate::db::{exec::plan_executor, operation_context::OperationContext, query::{filtering::Filter, query_planner::{QueryPlan, QueryPlanner}}, service_context::ServiceContext};
+use crate::db::{exec::plan_executor, operation_context::OperationContext, query::{filtering::Filter, query_planner::QueryPlanner}, service_context::ServiceContext};
 
-// By the idea it should accept BSON doc with fields
 pub fn find(
     ctx: &ServiceContext,
     collection: &str,
