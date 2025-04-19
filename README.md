@@ -72,7 +72,7 @@ find [x]
 findDML [x]
 find({args}) [x]
 
-- [ ] bson
+- [X] bson
 - [ ] limit
 - [ ] insertMany
 - [ ] storage-pages
