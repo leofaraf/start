@@ -26,7 +26,7 @@ pub fn in_memory() -> ServiceContext {
     let mut raw_storage = StartStorage::in_memory();
     let header = get_header(&mut raw_storage);
     let storage = Rc::new(RefCell::new(raw_storage));
-    let catalog = Rc::new(RefCell::new(Catalog::new())); // or Catalog::load(&storage)
+    let catalog = Rc::new(RefCell::new(Catalog::new(storage.clone())));
 
     let service_context = ServiceContext {
         storage,
@@ -41,7 +41,7 @@ pub fn embedded(path: PathBuf) -> HandleResult<ServiceContext> {
     let mut raw_storage = StartStorage::embedded(path)?;
     let header = get_header(&mut raw_storage);
     let storage = Rc::new(RefCell::new(raw_storage));
-    let catalog = Rc::new(RefCell::new(Catalog::new())); // or Catalog::load(&storage)
+    let catalog = Rc::new(RefCell::new(Catalog::new(storage.clone())));
 
     let service_context = ServiceContext {
         storage,

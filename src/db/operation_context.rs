@@ -18,4 +18,12 @@ impl OperationContext {
             txn_id: None,
         }
     }
+
+    pub fn storage(&self) -> Rc<RefCell<StartStorage>> {
+        Rc::clone(&self.storage)
+    }
+
+    pub fn catalog(&self) -> Rc<RefCell<Catalog>> {
+        Rc::clone(&self.catalog)
+    }
 }

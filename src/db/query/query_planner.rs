@@ -1,58 +1,69 @@
+use crate::db::collection::Collection;
+
 use super::filtering::Filter;
 
 pub struct QueryPlanner;
+pub struct QueryPlan {
+    root: PlanNode,
+    collection: Collection
+}
 
 impl QueryPlanner {
     pub fn build_plan(
-        collection: &str,
+        collection: Collection,
         filter: Option<Filter>,
         skip: Option<u64>,
         limit: Option<u64>,
     ) -> QueryPlan {
-        let mut plan = QueryPlan::CollectionScan {
-            collection_name: collection.to_string(),
+        let mut plan = PlanNode::CollectionScan {
+            collection_name: String::from_utf8(collection.name.to_vec()).unwrap(),
         };
 
         if let Some(f) = filter {
-            plan = QueryPlan::Filter {
+            plan = PlanNode::Filter {
                 condition: f,
                 child: Box::new(plan),
             };
         }
 
         if let Some(s) = skip {
-            plan = QueryPlan::Skip {
+            plan = PlanNode::Skip {
                 skip: s as usize,
                 child: Box::new(plan),
             };
         }
 
         if let Some(l) = limit {
-            plan = QueryPlan::Limit {
+            plan = PlanNode::Limit {
                 limit: l as usize,
                 child: Box::new(plan),
             };
         }
 
-        plan
+        QueryPlan {
+            root: plan, 
+            collection
+        }
     }
 }
 
+
+
 #[derive(Debug, Clone)]
-pub enum QueryPlan {
+pub enum PlanNode {
     CollectionScan {
         collection_name: String,
     },
     Filter {
         condition: Filter,
-        child: Box<QueryPlan>,
+        child: Box<PlanNode>,
     },
     Skip {
         skip: usize,
-        child: Box<QueryPlan>,
+        child: Box<PlanNode>,
     },
     Limit {
         limit: usize,
-        child: Box<QueryPlan>,
+        child: Box<PlanNode>,
     },
 }
