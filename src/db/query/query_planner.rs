@@ -1,8 +1,9 @@
-use crate::db::collection::Collection;
+use crate::db::{catalog::collection::CollectionMetadata, collection::Collection};
 
 use super::filtering::Filter;
 
 pub struct QueryPlanner;
+#[derive(Debug)]
 pub struct QueryPlan {
     pub root: PlanNode,
     pub collection: Collection
@@ -10,13 +11,13 @@ pub struct QueryPlan {
 
 impl QueryPlanner {
     pub fn build_plan(
-        collection: Collection,
+        meta: CollectionMetadata,
         filter: Option<Filter>,
         skip: Option<u64>,
         limit: Option<u64>,
     ) -> QueryPlan {
         let mut plan = PlanNode::CollectionScan {
-            collection_name: String::from_utf8(collection.name.to_vec()).unwrap(),
+            collection_name: String::from_utf8(meta.collection.name.to_vec()).unwrap(),
         };
 
         if let Some(f) = filter {
@@ -42,7 +43,7 @@ impl QueryPlanner {
 
         QueryPlan {
             root: plan, 
-            collection
+            collection: meta.collection
         }
     }
 }

@@ -6,17 +6,17 @@ use start_storage::StartStorage;
 pub mod collection;
 
 pub struct Catalog {
-    collection_catalog: Rc<CollectionCatalog>
+    collection_catalog: Rc<RefCell<CollectionCatalog>>
 }
 
 impl Catalog {
     pub fn new(_ss: Rc<RefCell<StartStorage>>) -> Self {
         Self {
-            collection_catalog: Rc::new(CollectionCatalog::new()),
+            collection_catalog: Rc::new(RefCell::new(CollectionCatalog::new())),
         }
     }
 
-    pub fn collection(&self) -> Rc<CollectionCatalog> {
+    pub fn collection(&self) -> Rc<RefCell<CollectionCatalog>> {
         self.collection_catalog.clone()
     }
 }

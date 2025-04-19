@@ -3,7 +3,9 @@ use bson::Bson;
 use crate::db::{catalog::collection::RawDocument, operation_context::OperationContext, query::query_planner::QueryPlan};
 
 pub fn execute_plan(op_ctx: OperationContext, plan: QueryPlan) -> Vec<Bson> {
-    let result = vec![];
+    println!("QueryPlan: {:?}", plan);
+
+    let mut result = vec![];
     
     let mut next_offset = plan.collection.next_document as usize;
     
@@ -14,6 +16,8 @@ pub fn execute_plan(op_ctx: OperationContext, plan: QueryPlan) -> Vec<Bson> {
         if let Ok(text) = std::str::from_utf8(&raw_doc.content) {
             println!("{}. '{}'", next_offset, text);
         }
+
+        result.push(bson::from_slice(&raw_doc.content).unwrap());
 
         next_offset = 0;
 

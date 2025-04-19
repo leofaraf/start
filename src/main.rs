@@ -17,7 +17,11 @@ fn main() -> HandleResult<()> {
 
     let ctx = service_context::in_memory();
 
-    
+    commands::insert::insert(&ctx, "students", bson::to_bson(&Agent {
+        name: "ChatGPT".to_string(),
+        r#type: "AI".to_string(),
+        score: 80,
+    }).unwrap());
 
     let result = commands::find::find(
         &ctx,
