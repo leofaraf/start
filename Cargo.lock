@@ -340,10 +340,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "start-core"
-version = "0.1.0"
-
-[[package]]
 name = "start-sql"
 version = "0.1.0"
 
