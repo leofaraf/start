@@ -54,7 +54,7 @@ impl CollectionCatalog {
     }
 
     pub fn autocol(&mut self, name: &str, op_ctx: &OperationContext) -> CollectionMetadata {
-        let col: CollectionMetadata = match self.collection_metadata.get(name) {
+        let col: CollectionMetadata = match self.collection_metadata.get_mut(name) {
             Some(col) => col.clone(),
             None => {
                 let mut bytes = [0u8; 32];
@@ -81,7 +81,7 @@ impl CollectionCatalog {
                     name: bytes,
                     next_document: 0,
                 };
-                let meta = CollectionMetadata {
+                let mut meta = CollectionMetadata {
                     collection,
                     offset: col_offset,
                     name: name.to_string()

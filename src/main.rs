@@ -17,13 +17,13 @@ fn main() -> HandleResult<()> {
 
     let ctx = service_context::in_memory();
 
-    commands::insert::insert(&ctx, "students", bson::to_bson(&Agent {
+    commands::insert::insert(&ctx, "american-ai", bson::to_bson(&Agent {
         name: "ChatGPT".to_string(),
         r#type: "AI".to_string(),
         score: 85,
     }).unwrap());
 
-    commands::insert::insert(&ctx, "teachers", bson::to_bson(&Agent {
+    commands::insert::insert(&ctx, "chinese-ai", bson::to_bson(&Agent {
         name: "DeepSeek".to_string(),
         r#type: "AI".to_string(),
         score: 80,
@@ -31,11 +31,17 @@ fn main() -> HandleResult<()> {
 
     let result = commands::find::find(
         &ctx,
-        "students",
+        "american-ai",
         None, None, None
     );
 
-    println!("result: {:?}", result);
+    println!("----Collection-----");
+    
+    for entry in result {
+        println!("Entry: {:?}", entry);
+    }
+
+    println!("-------------------");
 
     println!("Main took: {}ms", start.elapsed().as_millis());
     Ok(())

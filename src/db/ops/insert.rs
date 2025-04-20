@@ -35,8 +35,7 @@ pub fn insert(
         
         // FIX ASAP AAA, research best way in catalog
         if user {
-            op_ctx.catalog().borrow_mut().collection().borrow_mut()
-                .collection_metadata.get_mut(&col_meta.name).unwrap().collection.next_document = new_doc_offset as u64;
+
         }
     } else {
         let mut next_offset = entry_point as usize;
