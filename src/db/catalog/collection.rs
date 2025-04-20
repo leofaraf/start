@@ -23,7 +23,7 @@ impl CollectionCatalog {
         }
     }
 
-    pub fn autocol_readonly(&self, name: &str) -> Collection {
+    pub fn lookup_collection(&self, name: &str) -> Collection {
         let col = match self.collection_metadata.get(name) {
             Some(col) => col.clone(),
             None => {
@@ -40,7 +40,7 @@ impl CollectionCatalog {
         col
     }
 
-    pub fn autocol(&mut self, name: &str, op_ctx: &OperationContext) -> Collection {
+    pub fn acquire_collection_or_create(&mut self, name: &str, op_ctx: &OperationContext) -> Collection {
         let col: Collection = match self.collection_metadata.get_mut(name) {
             Some(col) => col.clone(),
             None => {

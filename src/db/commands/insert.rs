@@ -21,7 +21,7 @@ pub fn insert(
         content_length: content.len() as u64,
         content: content,
     };
-    let meta = catalog.borrow_mut().autocol(collection, &op_ctx);
+    let meta = catalog.borrow_mut().acquire_collection_or_create(collection, &op_ctx);
 
     let new_doc_id = ops::insert::insert(&op_ctx, meta, raw_document, true);
 
