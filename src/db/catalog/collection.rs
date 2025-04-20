@@ -44,14 +44,7 @@ impl CollectionCatalog {
         let col: Collection = match self.collection_metadata.get_mut(name) {
             Some(col) => col.clone(),
             None => {
-                let mut bytes = [0u8; 32];
-                bytes[0..name.len()].copy_from_slice(name.as_bytes());
-            
-                let mut collection = Collection {
-                    name: bytes,
-                    next_document: 0,
-                    offset: 0
-                };
+                let mut collection = Collection::new(name, 0);
 
                 let col_offset = insert(op_ctx, SYS_MASTER, RawDocument {
                     next_document: 0,

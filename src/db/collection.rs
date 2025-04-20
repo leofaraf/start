@@ -19,7 +19,16 @@ pub const SYS_MASTER: Collection = Collection {
 };
 
 impl Collection {
-    pub fn new() {}
+    pub fn new(name: &str, offset: usize) -> Self {
+        let mut bytes = [0u8; 32];
+        bytes[0..name.len()].copy_from_slice(name.as_bytes());
+
+        Self {
+            name: bytes,
+            next_document: 0,
+            offset,
+        }
+    }
 
     pub fn insert_document() {}
     pub fn delete_document() {}
