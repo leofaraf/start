@@ -1,4 +1,4 @@
-use std::{cell::RefCell, rc::Rc};
+use std::{cell::{Ref, RefCell}, rc::Rc};
 
 use start_storage::StartStorage;
 
@@ -7,23 +7,20 @@ use super::catalog::collection::DOCUMENT_CONTENT_OFFSET;
 #[derive(Debug, Clone)]
 pub struct Collection {
     pub name: [u8; 32],
-    pub next_document: u64
+    pub next_document: usize,
+    pub offset: usize
 }
 
-pub const SYS_MASTER_OFFSET: usize = 100;
 pub const SYS_MASTER: Collection = Collection {
     name: *b"sys-master\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0",
     // master next document is next table
-    next_document: 0
-};
-
-pub const SYS_TRASH_OFFSET: u64 = 156;
-pub const SYS_TRASH: Collection = Collection {
-    name: *b"sys-trash\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0",
-    next_document: 0
+    next_document: 0,
+    offset: 100
 };
 
 impl Collection {
+    pub fn new() {}
+
     pub fn insert_document() {}
     pub fn delete_document() {}
     pub fn find_doc() {}
@@ -44,23 +41,24 @@ impl Collection {
         .copy_from_slice(&next_offset.to_le_bytes());
     }
 
-    pub fn parse(content: &[u8]) -> Collection {
+    pub fn parse(ss: &Ref<'_, StartStorage>, offset: usize) -> Collection {
         Collection {
-            name: Self::parse_name(&content),
-            next_document: Self::next_document(&content),
+            name: Self::parse_name(ss, offset),
+            next_document: Self::next_document(ss, offset),
+            offset
         }
     }
 
-    pub fn parse_name(content: &[u8]) -> [u8; 32] {
+    pub fn parse_name(ss: &Ref<'_, StartStorage>, offset: usize) -> [u8; 32] {
         let mut bytes = [0u8; 32];
-        bytes.copy_from_slice(&content[..32]);
+        bytes.copy_from_slice(&ss[offset..offset+32]);
         bytes
     }
 
-    pub fn next_document(content: &[u8]) -> u64 {
+    pub fn next_document(ss: &Ref<'_, StartStorage>, offset: usize) -> usize {
         let mut bytes = [0u8; 8];
-        bytes.copy_from_slice(&content[32..40]);
-        u64::from_le_bytes(bytes)
+        bytes.copy_from_slice(&ss[offset+32..offset+40]);
+        u64::from_le_bytes(bytes) as usize
     }
 
     pub fn to_bytes(&self) -> Vec<u8> {

@@ -2,13 +2,13 @@ use std::{cell::RefCell, rc::Rc};
 
 use start_storage::StartStorage;
 
-use super::{catalog::collection::RawDocument, collection::{SYS_MASTER, SYS_MASTER_OFFSET, SYS_TRASH, SYS_TRASH_OFFSET}, operation_context::ensure_capacity, ops::{self, insert::insert_one_by_offset}};
+use super::{catalog::collection::RawDocument, collection::SYS_MASTER, operation_context::ensure_capacity, ops::{self, insert::insert_one_by_offset}};
 
 pub fn get_header(storage: Rc<RefCell<StartStorage>>) -> Header {
     let ss = storage.clone();
     
     if ss.borrow_mut().len() == 0 {
-        insert_one_by_offset(storage.clone(), SYS_MASTER_OFFSET as usize, RawDocument {
+        insert_one_by_offset(storage.clone(), SYS_MASTER.offset, RawDocument {
             next_document: 0,
             content_length: 40,
             content: SYS_MASTER.to_bytes(),

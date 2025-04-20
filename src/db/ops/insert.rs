@@ -3,11 +3,11 @@ use std::{cell::RefCell, rc::Rc};
 use bson::Bson;
 use start_storage::StartStorage;
 
-use crate::db::{catalog::collection::{CollectionMetadata, RawDocument}, collection::Collection, operation_context::{ensure_capacity, OperationContext}};
+use crate::db::{catalog::collection::{RawDocument}, collection::Collection, operation_context::{ensure_capacity, OperationContext}};
 
 pub fn insert(
     op_ctx: &OperationContext,
-    col_meta: CollectionMetadata,
+    col_meta: Collection,
     raw_document: RawDocument,
     user: bool
 ) -> usize {
@@ -16,8 +16,7 @@ pub fn insert(
 
     ensure_capacity(op_ctx.storage(), col_meta.offset + 56).unwrap();
     #[deprecated]
-    let raw_doc = RawDocument::parse(op_ctx.storage(), col_meta.offset);
-    let collection = Collection::parse(&raw_doc.content);
+    let collection = Collection::parse(&op_ctx.storage().borrow(), col_meta.offset);
     let entry_point = collection.next_document;
 
     println!("Entry point: {}", entry_point);
@@ -32,11 +31,6 @@ pub fn insert(
     if entry_point == 0 {
         println!("Inserting in start of collection: {:?}", col_meta.offset);
         Collection::write_next_document(op_ctx.storage(), col_meta.offset, new_doc_offset);
-        
-        // FIX ASAP AAA, research best way in catalog
-        if user {
-
-        }
     } else {
         let mut next_offset = entry_point as usize;
 

@@ -4,15 +4,8 @@ use start_storage::StartStorage;
 
 use crate::db::{collection::{Collection, SYS_MASTER}, operation_context::OperationContext, ops::insert::insert};
 
-#[derive(Debug, Clone)]
-pub struct CollectionMetadata {
-    pub collection: Collection,
-    pub offset: usize,
-    pub name: String
-}
-
 pub struct CollectionCatalog {
-    pub collection_metadata: HashMap<String, CollectionMetadata>   
+    pub collection_metadata: HashMap<String, Collection>   
 }
 
 #[derive(Debug)]
@@ -30,70 +23,48 @@ impl CollectionCatalog {
         }
     }
 
-    pub fn autocol_readonly(&self, name: &str) -> CollectionMetadata {
+    pub fn autocol_readonly(&self, name: &str) -> Collection {
         let col = match self.collection_metadata.get(name) {
             Some(col) => col.clone(),
             None => {
                 let mut bytes = [0u8; 32];
                 bytes[0..name.len()].copy_from_slice(name.as_bytes());
-                let collection = Collection {
+                Collection {
                     name: bytes,
                     next_document: 0,
-                };
-                CollectionMetadata {
-                    collection,
-                    offset: 0,
-                    name: name.to_string()
+                    offset: 0
                 }
             }
         };
 
-        println!("Readonly Collection catalog: {:?}", self.collection_metadata);
-
         col
     }
 
-    pub fn autocol(&mut self, name: &str, op_ctx: &OperationContext) -> CollectionMetadata {
-        let col: CollectionMetadata = match self.collection_metadata.get_mut(name) {
+    pub fn autocol(&mut self, name: &str, op_ctx: &OperationContext) -> Collection {
+        let col: Collection = match self.collection_metadata.get_mut(name) {
             Some(col) => col.clone(),
             None => {
                 let mut bytes = [0u8; 32];
                 bytes[0..name.len()].copy_from_slice(name.as_bytes());
             
-                let collection = Collection {
+                let mut collection = Collection {
                     name: bytes,
                     next_document: 0,
+                    offset: 0
                 };
 
-                let master_meta = CollectionMetadata {
-                    collection: SYS_MASTER,
-                    offset: 100,
-                    name: name.to_string()
-                };
-            
-                let col_offset = insert(op_ctx, master_meta, RawDocument {
+                let col_offset = insert(op_ctx, SYS_MASTER, RawDocument {
                     next_document: 0,
                     content_length: Collection::len(),
                     content: collection.to_bytes(),
                 }, false);
 
-                let collection = Collection {
-                    name: bytes,
-                    next_document: 0,
-                };
-                let mut meta = CollectionMetadata {
-                    collection,
-                    offset: col_offset,
-                    name: name.to_string()
-                };
+                collection.offset = col_offset;
 
-                self.collection_metadata.insert(name.to_string(), meta.clone());
-                meta
+                self.collection_metadata.insert(name.to_string(), collection.clone());
+                collection
             }
         };
-
-        println!("AutoCol Res: {:?}", col);
-        println!("Collection catalog: {:?}", self.collection_metadata);
 
         col
     }

@@ -27,7 +27,7 @@ pub fn insert(
 
     let mut binding = catalog.borrow_mut();
     let colmeta = binding.collection_metadata.get_mut(collection).unwrap();
-    if colmeta.collection.next_document == 0 {
-        colmeta.collection.next_document = new_doc_id as u64;
+    if colmeta.next_document == 0 {
+        colmeta.next_document = new_doc_id;
     };
 }
