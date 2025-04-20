@@ -23,5 +23,5 @@ pub fn insert(
     };
     let meta = catalog.borrow_mut().autocol(collection, &op_ctx);
 
-    ops::insert::insert(&op_ctx, meta, raw_document);
+    ops::insert::insert(&op_ctx, meta, raw_document, true);
 }

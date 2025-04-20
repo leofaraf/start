@@ -8,7 +8,8 @@ use crate::db::{catalog::collection::{CollectionMetadata, RawDocument}, collecti
 pub fn insert(
     op_ctx: &OperationContext,
     col_meta: CollectionMetadata,
-    raw_document: RawDocument
+    raw_document: RawDocument,
+    user: bool
 ) -> usize {
     println!("Inserting...");
     // Parsing collection
@@ -33,8 +34,10 @@ pub fn insert(
         Collection::write_next_document(op_ctx.storage(), col_meta.offset, new_doc_offset);
         
         // FIX ASAP AAA, research best way in catalog
-        op_ctx.catalog().borrow_mut().collection().borrow_mut()
-        .collection_metadata.get_mut("students").unwrap().collection.next_document = new_doc_offset as u64;
+        if user {
+            op_ctx.catalog().borrow_mut().collection().borrow_mut()
+                .collection_metadata.get_mut(&col_meta.name).unwrap().collection.next_document = new_doc_offset as u64;
+        }
     } else {
         let mut next_offset = entry_point as usize;
 

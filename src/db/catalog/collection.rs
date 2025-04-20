@@ -75,7 +75,7 @@ impl CollectionCatalog {
                     next_document: 0,
                     content_length: Collection::len(),
                     content: collection.to_bytes(),
-                });
+                }, false);
 
                 let collection = Collection {
                     name: bytes,

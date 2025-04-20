@@ -23,7 +23,7 @@ fn main() -> HandleResult<()> {
         score: 85,
     }).unwrap());
 
-    commands::insert::insert(&ctx, "students", bson::to_bson(&Agent {
+    commands::insert::insert(&ctx, "teachers", bson::to_bson(&Agent {
         name: "DeepSeek".to_string(),
         r#type: "AI".to_string(),
         score: 80,
