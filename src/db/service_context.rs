@@ -4,7 +4,7 @@ use start_storage::StartStorage;
 
 use crate::HandleResult;
 
-use super::{catalog::Catalog, header::{get_header, Header}};
+use super::{catalog::Catalog, header::{get_header, Header}, operation_context::OperationContext};
 
 pub struct ServiceContext {
     storage: Rc<RefCell<StartStorage>>,
@@ -24,8 +24,10 @@ impl ServiceContext {
 
 pub fn in_memory() -> ServiceContext {
     let mut raw_storage = StartStorage::in_memory();
-    let header = get_header(&mut raw_storage);
     let storage = Rc::new(RefCell::new(raw_storage));
+
+    // Init operation context
+    let header = get_header(storage.clone());
     let catalog = Rc::new(RefCell::new(Catalog::new(storage.clone())));
 
     let service_context = ServiceContext {
@@ -39,8 +41,8 @@ pub fn in_memory() -> ServiceContext {
 
 pub fn embedded(path: PathBuf) -> HandleResult<ServiceContext> {
     let mut raw_storage = StartStorage::embedded(path)?;
-    let header = get_header(&mut raw_storage);
     let storage = Rc::new(RefCell::new(raw_storage));
+    let header = get_header(storage.clone());
     let catalog = Rc::new(RefCell::new(Catalog::new(storage.clone())));
 
     let service_context = ServiceContext {

@@ -1,23 +1,20 @@
+use std::{cell::RefCell, rc::Rc};
+
 use start_storage::StartStorage;
 
-use crate::{systypes::{collection::{SYS_MASTER, SYS_TRASH}, document::RawDocument}, sysutils::{capacity::ensure_capacity, insert::one::{insert_one, insert_one_by_offset}}};
+use super::{catalog::collection::RawDocument, collection::{SYS_MASTER, SYS_MASTER_OFFSET, SYS_TRASH, SYS_TRASH_OFFSET}, operation_context::ensure_capacity, ops::{self, insert::insert_one_by_offset}};
 
-use super::collection::SYS_MASTER_OFFSET;
-
-pub fn get_header(ss: &mut StartStorage) -> Header {
-    if ss.len() == 0 {
-        insert_one_by_offset(ss, SYS_MASTER_OFFSET as usize, RawDocument {
+pub fn get_header(storage: Rc<RefCell<StartStorage>>) -> Header {
+    let ss = storage.clone();
+    
+    if ss.borrow_mut().len() == 0 {
+        insert_one_by_offset(storage.clone(), SYS_MASTER_OFFSET as usize, RawDocument {
             next_document: 0,
             content_length: 40,
             content: SYS_MASTER.to_bytes(),
         });
-        insert_one(ss, SYS_MASTER_OFFSET as usize, RawDocument {
-            next_document: 0,
-            content_length: 40,
-            content: SYS_TRASH.to_bytes(),
-        });
 
-        match Header::create(ss) {
+        match Header::create(storage) {
             Ok(header) => {
                 header
             },
@@ -25,7 +22,7 @@ pub fn get_header(ss: &mut StartStorage) -> Header {
             Err(err) => panic!("Header parsing error: {:?}", err)
         }
     } else {
-        match Header::parse(ss) {
+        match Header::parse(storage) {
             Ok(header) => {
                 header
             },
@@ -55,32 +52,34 @@ const VERSION_OFFSET: usize = 4;
 const CURRENT_VERSION: &str = "0.0.1";
 
 impl Header {
-    pub fn parse(ss: &mut StartStorage) -> Result<Self, HeaderError> {
+    pub fn parse(storage: Rc<RefCell<StartStorage>>) -> Result<Self, HeaderError> {
+        let ss_clone = storage.clone();
+        let ss = ss_clone.borrow_mut();
         let magic_number = if ss.len() > 4 {
-            MagicNumber::get(ss)
+            MagicNumber::get(storage.clone())
         } else {
             Err(HeaderError::MagicNumberParsingError(
                 "File is too short".to_string()
             ))
         }?;
-        Self::ensure_capacity(ss)?;
+        Self::ensure_capacity(storage.clone())?;
         
         Ok(Header {
             magic_number,
-            version: Version::get(&ss)?,
+            version: Version::get(storage)?,
         })
     }
 
-    pub fn create(ss: &mut StartStorage) -> Result<Self, HeaderError> {
-        Self::ensure_capacity(ss)?;
+    pub fn create(ss: Rc<RefCell<StartStorage>>) -> Result<Self, HeaderError> {
+        Self::ensure_capacity(ss.clone())?;
 
         Ok(Header {
-            magic_number: MagicNumber::create(ss)?,
+            magic_number: MagicNumber::create(ss.clone())?,
             version: Version::create(ss)?,
         })
     }
 
-    fn ensure_capacity(ss: &mut StartStorage) -> Result<(), HeaderError> {
+    fn ensure_capacity(ss: Rc<RefCell<StartStorage>>) -> Result<(), HeaderError> {
         match ensure_capacity(ss, 100) {
             Ok(_) => Ok(()),
             Err(err) => Err(HeaderError::DatabaseError(
@@ -91,7 +90,9 @@ impl Header {
 }
 
 impl MagicNumber {
-    fn get(ss: &StartStorage) -> Result<Self, HeaderError> {
+    fn get(ss: Rc<RefCell<StartStorage>>) -> Result<Self, HeaderError> {
+        let ss = ss.borrow();
+
         let mut bytes = [0u8; 4];
         bytes.copy_from_slice(&ss[0..4]);
         let magic_number = u32::from_le_bytes(bytes);
@@ -103,7 +104,9 @@ impl MagicNumber {
         Ok(MagicNumber(magic_number))
     }
 
-    fn create(ss: &mut StartStorage) -> Result<Self, HeaderError> {
+    fn create(ss: Rc<RefCell<StartStorage>>) -> Result<Self, HeaderError> {
+        let mut ss = ss.borrow_mut();
+
         ss[MAGIC_NUMBER_OFFSET..MAGIC_NUMBER_OFFSET+4]
             .copy_from_slice(&MAGIC_NUMBER.to_le_bytes());
         Ok(MagicNumber(MAGIC_NUMBER))
@@ -117,7 +120,9 @@ impl Default for MagicNumber {
 }
 
 impl Version {
-    fn get(ss: &StartStorage) -> Result<Self, HeaderError> {
+    fn get(ss: Rc<RefCell<StartStorage>>) -> Result<Self, HeaderError> {
+        let ss = ss.borrow();
+
         let mut bytes = [0u8; 8];
         bytes.copy_from_slice(&ss[VERSION_OFFSET..VERSION_OFFSET+8]);
         match String::from_utf8(bytes.to_vec()) {
@@ -131,7 +136,9 @@ impl Version {
         }
     }
 
-    fn create(ss: &mut StartStorage) -> Result<Self, HeaderError> {
+    fn create(ss: Rc<RefCell<StartStorage>>) -> Result<Self, HeaderError> {
+        let mut ss = ss.borrow_mut();
+
         let mut bytes = [0u8; 8];
         bytes[..CURRENT_VERSION.len()].copy_from_slice(CURRENT_VERSION.as_bytes());
         ss[VERSION_OFFSET..VERSION_OFFSET+8].copy_from_slice(&bytes);

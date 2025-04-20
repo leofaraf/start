@@ -8,6 +8,7 @@ use crate::db::{collection::{Collection, SYS_MASTER}, operation_context::Operati
 pub struct CollectionMetadata {
     pub collection: Collection,
     pub offset: usize,
+    pub name: String
 }
 
 pub struct CollectionCatalog {
@@ -29,19 +30,20 @@ impl CollectionCatalog {
         }
     }
 
-    pub fn autocol_readonly(&self, collection: &str) -> CollectionMetadata {
-        let col = match self.collection_metadata.get(collection) {
+    pub fn autocol_readonly(&self, name: &str) -> CollectionMetadata {
+        let col = match self.collection_metadata.get(name) {
             Some(col) => col.clone(),
             None => {
                 let mut bytes = [0u8; 32];
-                bytes[0..collection.len()].copy_from_slice(collection.as_bytes());
+                bytes[0..name.len()].copy_from_slice(name.as_bytes());
                 let collection = Collection {
                     name: bytes,
                     next_document: 0,
                 };
                 CollectionMetadata {
                     collection,
-                    offset: 0
+                    offset: 0,
+                    name: name.to_string()
                 }
             }
         };
@@ -51,12 +53,12 @@ impl CollectionCatalog {
         col
     }
 
-    pub fn autocol(&mut self, collection_name: &str, op_ctx: &OperationContext) -> CollectionMetadata {
-        let col: CollectionMetadata = match self.collection_metadata.get(collection_name) {
+    pub fn autocol(&mut self, name: &str, op_ctx: &OperationContext) -> CollectionMetadata {
+        let col: CollectionMetadata = match self.collection_metadata.get(name) {
             Some(col) => col.clone(),
             None => {
                 let mut bytes = [0u8; 32];
-                bytes[0..collection_name.len()].copy_from_slice(collection_name.as_bytes());
+                bytes[0..name.len()].copy_from_slice(name.as_bytes());
             
                 let collection = Collection {
                     name: bytes,
@@ -66,6 +68,7 @@ impl CollectionCatalog {
                 let master_meta = CollectionMetadata {
                     collection: SYS_MASTER,
                     offset: 100,
+                    name: name.to_string()
                 };
             
                 let col_offset = insert(op_ctx, master_meta, RawDocument {
@@ -80,10 +83,11 @@ impl CollectionCatalog {
                 };
                 let meta = CollectionMetadata {
                     collection,
-                    offset: col_offset
+                    offset: col_offset,
+                    name: name.to_string()
                 };
 
-                self.collection_metadata.insert(collection_name.to_string(), meta.clone());
+                self.collection_metadata.insert(name.to_string(), meta.clone());
                 meta
             }
         };

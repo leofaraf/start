@@ -10,11 +10,11 @@ pub struct Collection {
     pub next_document: u64
 }
 
-pub const SYS_MASTER_OFFSET: u64 = 100;
+pub const SYS_MASTER_OFFSET: usize = 100;
 pub const SYS_MASTER: Collection = Collection {
     name: *b"sys-master\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0",
     // master next document is next table
-    next_document: 0
+    next_document: SYS_TRASH_OFFSET
 };
 
 pub const SYS_TRASH_OFFSET: u64 = 156;
