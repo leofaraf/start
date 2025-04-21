@@ -78,6 +78,7 @@ find({args}) [x]
 - [ ] storage-pages
 - [ ] delete
 - [ ] make lazy colscan if collection catalog lookup don't find
+- [ ] session catalog (TransactionParticipant -> txnNumber, recovery unit (changes) )
 
 ## How does it works?
 

@@ -5,6 +5,7 @@ use start_storage::StartStorage;
 
 pub mod collection;
 pub mod database;
+pub mod session;
 
 pub struct Catalog {
     collection_catalog: Rc<RefCell<CollectionCatalog>>

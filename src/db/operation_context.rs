@@ -2,11 +2,12 @@ use std::{cell::{RefCell, RefMut}, rc::Rc};
 
 use start_storage::StartStorage;
 
-use super::{catalog::Catalog, service_context::ServiceContext};
+use super::{catalog::Catalog, recovery_unit::RecoveryUnit, service_context::ServiceContext};
 
 pub struct OperationContext {
     storage: Rc<RefCell<StartStorage>>,
     catalog: Rc<RefCell<Catalog>>,
+    pub rc_unit: RecoveryUnit,
     txn_id: Option<u64>, // if supporting transactions
 }
 
@@ -15,6 +16,7 @@ impl OperationContext {
         Self {
             storage: sc.storage(),
             catalog: sc.catalog(),
+            rc_unit: RecoveryUnit::new(sc.storage()),
             txn_id: None,
         }
     }
@@ -33,12 +35,12 @@ pub fn ensure_capacity(
 ) -> Result<(), DocumentsError> {
     let current_size = ss.len();
     if required_size > current_size {
-        match ss.resize(required_size) {
+        return match ss.resize(required_size) {
             Ok(_) => Ok(()),
             Err(err) => Err(DocumentsError::DatabaseError(
                 format!("Ensure capatiry error: {:?}", err).into()
             )),
-        };
+        }
     }
     Ok(())
 }

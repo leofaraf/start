@@ -39,7 +39,7 @@ impl CollectionCatalog {
                 let mut collection = Collection::new(name, 0);
 
                 let col_offset = insert(op_ctx, _SYSTEM_MASTER, 
-                    From::from(&collection), false);
+                    From::from(&collection));
 
                 collection.offset = col_offset;
 
@@ -53,7 +53,7 @@ impl CollectionCatalog {
 }
 
 const DOCUMENT_NEXT_DOCUMENT_OFFSET: usize = 0;
-const DOCUMENT_CONTENT_LENGHT_OFFSET: usize = 8;
+pub const DOCUMENT_CONTENT_LENGHT_OFFSET: usize = 8;
 pub const DOCUMENT_CONTENT_OFFSET: usize = 16;
 
 impl RawDocument {

@@ -10,7 +10,7 @@ pub fn insert(
 ) {
     let op_ctx = OperationContext::new(ctx);
 
-    let mut catalog = 
+    let catalog = 
         op_ctx.catalog().borrow_mut()
         .collection();
 
@@ -23,7 +23,7 @@ pub fn insert(
     };
     let meta = catalog.borrow_mut().acquire_collection_or_create(collection, &op_ctx);
 
-    let new_doc_id = ops::insert::insert(&op_ctx, meta, raw_document, true);
+    let new_doc_id = ops::insert::insert(&op_ctx, meta, raw_document);
 
     let mut binding = catalog.borrow_mut();
     let colmeta = binding.collection_metadata.get_mut(collection).unwrap();

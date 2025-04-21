@@ -2,7 +2,7 @@ use std::{cell::{Ref, RefCell}, rc::Rc};
 
 use start_storage::StartStorage;
 
-use super::catalog::collection::DOCUMENT_CONTENT_OFFSET;
+use super::{catalog::collection::{RawDocument, DOCUMENT_CONTENT_LENGHT_OFFSET, DOCUMENT_CONTENT_OFFSET}, operation_context::OperationContext, storage::record_state};
 
 #[derive(Debug, Clone)]
 pub struct Collection {
@@ -30,7 +30,29 @@ impl Collection {
         }
     }
 
-    pub fn insert_document() {}
+    pub fn insert_document(
+        self,
+        op_ctx: &mut OperationContext,
+        data: &[u8]
+    ) {
+        let storage = op_ctx.storage();
+        let allocated_space = record_state::allocate_extent(storage.borrow_mut(), data.len());
+        println!("Allotaed: {}", allocated_space);
+        let last = self.last_document(storage.borrow());
+        println!("Last: {}", last);
+
+        println!("Length");
+        op_ctx.rc_unit.write(allocated_space + DOCUMENT_CONTENT_LENGHT_OFFSET, &data.len().to_le_bytes());
+        println!("Content");
+        op_ctx.rc_unit.write(allocated_space + DOCUMENT_CONTENT_OFFSET, data);
+        println!("Linking");
+        if last == 0 {
+            op_ctx.rc_unit.write(self.offset + DOCUMENT_CONTENT_OFFSET + 32, &allocated_space.to_le_bytes());
+        } else {
+            op_ctx.rc_unit.write(last, &allocated_space.to_le_bytes());
+        }
+    }
+
     pub fn delete_document() {}
     pub fn find_doc() {}
     pub fn get_indexes() {}
@@ -38,6 +60,32 @@ impl Collection {
     pub fn compact() {}
     pub fn rename() {}
     pub fn validate() {}
+
+    pub fn last_document(
+        &self,
+        storage: Ref<'_, StartStorage>,
+    ) -> usize {
+        let entry_point = self.next_document;
+        println!("EntryPoint: {}", entry_point);
+
+        if entry_point == 0 {
+            self.offset
+        } else {
+            let mut next_offset  = entry_point as usize;
+    
+            while next_offset != 0 {
+                let raw_doc_next = RawDocument::parse_next_document(&storage, next_offset);
+        
+                if raw_doc_next == 0 {
+                    return next_offset;
+                }
+                
+                next_offset = raw_doc_next as usize; 
+            }
+
+            next_offset
+        }
+    }
 
     pub fn write_next_document(
         ss: Rc<RefCell<StartStorage>>,

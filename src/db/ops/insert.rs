@@ -8,22 +8,17 @@ use crate::db::{catalog::collection::{RawDocument}, collection::Collection, oper
 pub fn insert(
     op_ctx: &OperationContext,
     col_meta: Collection,
-    raw_document: RawDocument,
-    user: bool
+    raw_document: RawDocument
 ) -> usize {
     println!("Inserting...");
     // Parsing collection
-
     let storage = op_ctx.storage();
     ensure_capacity(&mut storage.borrow_mut(), col_meta.offset + 56).unwrap();
-    #[deprecated]
     let collection = Collection::parse(&op_ctx.storage().borrow(), col_meta.offset);
     let entry_point = collection.next_document;
-
     println!("Entry point: {}", entry_point);
 
     // Allocating space to new doc at the end
-
     let new_doc_offset = op_ctx.storage().borrow().len();
     insert_one_by_offset(&mut storage.borrow_mut(), new_doc_offset, raw_document);
     println!("new doc offset: {}", new_doc_offset);

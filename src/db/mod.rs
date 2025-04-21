@@ -7,3 +7,5 @@ pub mod catalog;
 pub mod operation_context;
 pub mod service_context;
 pub mod header;
+pub mod recovery_unit;
+pub mod storage;
