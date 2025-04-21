@@ -1,4 +1,4 @@
-use std::{cell::RefCell, rc::Rc, sync::Arc};
+use std::{cell::{RefCell, RefMut}, rc::Rc};
 
 use start_storage::StartStorage;
 
@@ -28,11 +28,9 @@ impl OperationContext {
     }
 }
 
-#[deprecated]
 pub fn ensure_capacity(
-    ss: Rc<RefCell<StartStorage>>, required_size: usize
+    ss: &mut RefMut<'_, StartStorage>, required_size: usize
 ) -> Result<(), DocumentsError> {
-    let mut ss = ss.borrow_mut();
     let current_size = ss.len();
     if required_size > current_size {
         match ss.resize(required_size) {

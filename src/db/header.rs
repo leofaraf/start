@@ -1,4 +1,4 @@
-use std::{cell::RefCell, rc::Rc};
+use std::{cell::{RefCell, RefMut}, rc::Rc};
 
 use start_storage::StartStorage;
 
@@ -8,7 +8,7 @@ pub fn get_header(storage: Rc<RefCell<StartStorage>>) -> Header {
     let ss = storage.clone();
     
     if ss.borrow_mut().len() == 0 {
-        insert_one_by_offset(storage.clone(), _SYSTEM_MASTER.offset, RawDocument {
+        insert_one_by_offset(&mut storage.borrow_mut(), _SYSTEM_MASTER.offset, RawDocument {
             next_document: 0,
             content_length: 40,
             content: _SYSTEM_MASTER.to_bytes(),
@@ -54,7 +54,7 @@ const CURRENT_VERSION: &str = "0.0.1";
 impl Header {
     pub fn parse(storage: Rc<RefCell<StartStorage>>) -> Result<Self, HeaderError> {
         let ss_clone = storage.clone();
-        let ss = ss_clone.borrow_mut();
+        let mut ss = ss_clone.borrow_mut();
         let magic_number = if ss.len() > 4 {
             MagicNumber::get(storage.clone())
         } else {
@@ -62,7 +62,7 @@ impl Header {
                 "File is too short".to_string()
             ))
         }?;
-        Self::ensure_capacity(storage.clone())?;
+        Self::ensure_capacity(&mut ss)?;
         
         Ok(Header {
             magic_number,
@@ -70,8 +70,9 @@ impl Header {
         })
     }
 
+    #[deprecated]
     pub fn create(ss: Rc<RefCell<StartStorage>>) -> Result<Self, HeaderError> {
-        Self::ensure_capacity(ss.clone())?;
+        Self::ensure_capacity(&mut ss.borrow_mut())?;
 
         Ok(Header {
             magic_number: MagicNumber::create(ss.clone())?,
@@ -79,7 +80,7 @@ impl Header {
         })
     }
 
-    fn ensure_capacity(ss: Rc<RefCell<StartStorage>>) -> Result<(), HeaderError> {
+    fn ensure_capacity(ss: &mut RefMut<'_, StartStorage>) -> Result<(), HeaderError> {
         match ensure_capacity(ss, 100) {
             Ok(_) => Ok(()),
             Err(err) => Err(HeaderError::DatabaseError(
@@ -90,6 +91,7 @@ impl Header {
 }
 
 impl MagicNumber {
+    #[deprecated]
     fn get(ss: Rc<RefCell<StartStorage>>) -> Result<Self, HeaderError> {
         let ss = ss.borrow();
 
@@ -104,6 +106,7 @@ impl MagicNumber {
         Ok(MagicNumber(magic_number))
     }
 
+    #[deprecated]
     fn create(ss: Rc<RefCell<StartStorage>>) -> Result<Self, HeaderError> {
         let mut ss = ss.borrow_mut();
 
@@ -120,6 +123,7 @@ impl Default for MagicNumber {
 }
 
 impl Version {
+    #[deprecated]
     fn get(ss: Rc<RefCell<StartStorage>>) -> Result<Self, HeaderError> {
         let ss = ss.borrow();
 
@@ -136,6 +140,7 @@ impl Version {
         }
     }
 
+    #[deprecated]
     fn create(ss: Rc<RefCell<StartStorage>>) -> Result<Self, HeaderError> {
         let mut ss = ss.borrow_mut();
 
