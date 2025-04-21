@@ -14,7 +14,7 @@ pub fn insert(
         op_ctx.catalog().borrow_mut()
         .collection();
 
-        let content = bson::to_vec(&document).unwrap();
+    let content = bson::to_vec(&document).unwrap();
     
     let raw_document = RawDocument {
         next_document: 0,

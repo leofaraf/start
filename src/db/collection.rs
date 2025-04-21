@@ -11,9 +11,9 @@ pub struct Collection {
     pub offset: usize
 }
 
-pub const SYS_MASTER: Collection = Collection {
-    name: *b"sys-master\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0",
-    // master next document is next table
+/// We always assume that database created master table physically
+pub const _SYSTEM_MASTER: Collection = Collection {
+    name: *b"_system-master\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0",
     next_document: 0,
     offset: 100
 };

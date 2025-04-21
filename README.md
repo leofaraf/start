@@ -77,6 +77,7 @@ find({args}) [x]
 - [ ] insertMany
 - [ ] storage-pages
 - [ ] delete
+- [ ] make lazy colscan if collection catalog lookup don't find
 
 ## How does it works?
 

@@ -1,8 +1,9 @@
 use std::{cell::RefCell, collections::HashMap, rc::Rc, str};
 
+use bson::Bson;
 use start_storage::StartStorage;
 
-use crate::db::{collection::{Collection, SYS_MASTER}, operation_context::OperationContext, ops::insert::insert};
+use crate::db::{collection::{Collection, _SYSTEM_MASTER}, operation_context::OperationContext, ops::insert::insert};
 
 pub struct CollectionCatalog {
     pub collection_metadata: HashMap<String, Collection>   
@@ -26,15 +27,7 @@ impl CollectionCatalog {
     pub fn lookup_collection(&self, name: &str) -> Collection {
         let col = match self.collection_metadata.get(name) {
             Some(col) => col.clone(),
-            None => {
-                let mut bytes = [0u8; 32];
-                bytes[0..name.len()].copy_from_slice(name.as_bytes());
-                Collection {
-                    name: bytes,
-                    next_document: 0,
-                    offset: 0
-                }
-            }
+            None => Collection::new(name, 0)
         };
 
         col
@@ -46,11 +39,8 @@ impl CollectionCatalog {
             None => {
                 let mut collection = Collection::new(name, 0);
 
-                let col_offset = insert(op_ctx, SYS_MASTER, RawDocument {
-                    next_document: 0,
-                    content_length: Collection::len(),
-                    content: collection.to_bytes(),
-                }, false);
+                let col_offset = insert(op_ctx, _SYSTEM_MASTER, 
+                    From::from(&collection), false);
 
                 collection.offset = col_offset;
 
@@ -127,5 +117,21 @@ impl RawDocument {
         ss[offset+DOCUMENT_CONTENT_OFFSET
         ..offset+DOCUMENT_CONTENT_OFFSET+content.len()]
         .copy_from_slice(content);
+    }
+}
+
+impl From<&Collection> for RawDocument {
+    fn from(value: &Collection) -> Self {
+        Self {
+            next_document: 0,
+            content_length: Collection::len(),
+            content: value.to_bytes(),
+        }
+    }
+}
+
+impl From<Bson> for RawDocument {
+    fn from(value: Bson) -> Self {
+        todo!()
     }
 }
