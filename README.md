@@ -15,49 +15,52 @@ struct Agent {
 }
 
 fn main() -> HandleResult<()> {
-    let mut db = start::in_memory();
+    let ctx = start::service_context::in_memory();
 
-    db
-        .insert(Agent {
-            name: "ChatGPT".into(),
-            r#type: "AI".into(),
-            score: 85
-        })
-        .into("agents")?;
+    commands::insert::insert(&ctx, "american-ai", bson::to_bson(&Agent {
+        name: "ChatGPT".to_string(),
+        r#type: "AI".to_string(),
+        score: 85,
+    }).unwrap());
 
-    db
-        .insert(Agent {
-            name: "Gemini".into(),
-            r#type: "AI".into(),
-            score: 80
-        })
-        .into("agents")?;
+    commands::insert::insert(&ctx, "chinese-ai", bson::to_bson(&Agent {
+        name: "DeepSeek".to_string(),
+        r#type: "AI".to_string(),
+        score: 80,
+    }).unwrap());
+    
+    commands::insert::insert(&ctx, "american-ai", bson::to_bson(&Agent {
+        name: "Cloude".to_string(),
+        r#type: "AI".to_string(),
+        score: 85,
+    }).unwrap());
 
-    db
-        .insert(Agent {
-            name: "RuleBot3000".into(),
-            r#type: "Rule-Based".into(),
-            score: 100
-        })
-        .into("agents")?;
+    let result = commands::find::find(
+        &ctx,
+        "american-ai",
+        None, None, None
+    );
 
-    let many: Vec<Agent> = db.find()
-        .filter(Filter::And(vec![
-            Filter::Eq("type".into(), Value::String("AI".into())),
-            Filter::Gt("score".into(), Value::Integer(80)),
-        ]))
-        .from("agents")?;
-
-    // output:
-    // Agent { name: "ChatGPT", type: "AI", score: 85 }
-
-    for doc in many {
-        println!("{:?}", doc);
+    println!("----Collection-----");
+    
+    for entry in result {
+        println!("Entry: {:?}", entry);
     }
 
+    println!("-------------------");
+
+    // output:
+    // ----Collection-----
+    // Entry: Document({"name": String("ChatGPT"), "type": String("AI"), "score": Int32(85)})
+    // Entry: Document({"name": String("Cloude"), "type": String("AI"), "score": Int32(85)})
+    // -------------------
     Ok(())
 }
 ```
+
+## Current state
+
+Now, impliment A__D (atomicity, consistency, isolation, durability).
 
 ### quick roadmap:
 
@@ -73,12 +76,18 @@ findDML [x]
 find({args}) [x]
 
 - [X] bson
+- [X] Atomicity
+- [X] Durability
+- [ ] session catalog (TransactionParticipant -> txnNumber, recovery unit (changes) )
+- [ ] Consistency (almost, check about collection catalog)
+- [ ] Isolation
 - [ ] limit
 - [ ] insertMany
 - [ ] storage-pages
 - [ ] delete
-- [ ] make lazy colscan if collection catalog lookup don't find
-- [ ] session catalog (TransactionParticipant -> txnNumber, recovery unit (changes) )
+- [ ] make lazy col. check if collection catalog lookup don't find
+- [ ] indexes
+- [ ] SQL parsing
 
 ## How does it works?
 

@@ -28,27 +28,12 @@ fn main() -> HandleResult<()> {
         r#type: "AI".to_string(),
         score: 80,
     }).unwrap());
-
-    // Init context
-
-    let mut op_ctx = OperationContext::new(&ctx);
-    let catalog = 
-        op_ctx.catalog().borrow_mut()
-        .collection();
-
-    let content = bson::to_vec(&Agent {
+    
+    commands::insert::insert(&ctx, "american-ai", bson::to_bson(&Agent {
         name: "Cloude".to_string(),
         r#type: "AI".to_string(),
         score: 85,
-    }).unwrap();
-
-    let meta = catalog.borrow_mut().acquire_collection_or_create("american-ai", &op_ctx);
-
-    meta.insert_document(&mut op_ctx, &content);
-
-    op_ctx.rc_unit.commit();
-
-    //
+    }).unwrap());
 
     let result = commands::find::find(
         &ctx,

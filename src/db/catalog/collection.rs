@@ -3,7 +3,7 @@ use std::{cell::{Ref, RefCell, RefMut}, collections::HashMap, rc::Rc, str};
 use bson::Bson;
 use start_storage::StartStorage;
 
-use crate::db::{collection::{Collection, _SYSTEM_MASTER}, operation_context::OperationContext, ops::insert::insert};
+use crate::db::{collection::{Collection, _SYSTEM_MASTER}, operation_context::OperationContext, ops::insert::insert, recovery_unit::RecoveryUnit};
 
 pub struct CollectionCatalog {
     pub collection_metadata: HashMap<String, Collection>   
@@ -32,14 +32,14 @@ impl CollectionCatalog {
         col
     }
 
-    pub fn acquire_collection_or_create(&mut self, name: &str, op_ctx: &OperationContext) -> Collection {
+    pub fn acquire_collection_or_create(&mut self, name: &str, op_ctx: &mut OperationContext) -> Collection {
         let col: Collection = match self.collection_metadata.get_mut(name) {
             Some(col) => col.clone(),
             None => {
                 let mut collection = Collection::new(name, 0);
 
                 let col_offset = insert(op_ctx, _SYSTEM_MASTER, 
-                    From::from(&collection));
+                    &collection.to_bytes());
 
                 collection.offset = col_offset;
 
@@ -61,7 +61,7 @@ impl RawDocument {
         self.content.len() + 8 + 8
     }
 
-    pub fn parse(ss: &Ref<'_, StartStorage>, offset: usize) -> RawDocument {
+    pub fn parse(ss: &RecoveryUnit, offset: usize) -> RawDocument {
         let content_length =  Self::parse_content_length(ss, offset);
         RawDocument {
             next_document: Self::parse_next_document(ss, offset),
@@ -70,27 +70,25 @@ impl RawDocument {
         }
     }
 
-    pub fn parse_next_document(ss: &Ref<'_, StartStorage>, offset: usize) -> u64 {
+    pub fn parse_next_document(ss: &RecoveryUnit, offset: usize) -> u64 {
         let mut bytes = [0u8; 8];
         bytes.copy_from_slice(
-            &ss[offset+DOCUMENT_NEXT_DOCUMENT_OFFSET
-            ..offset+DOCUMENT_CONTENT_LENGHT_OFFSET]
+            &ss.effective_view(offset+DOCUMENT_NEXT_DOCUMENT_OFFSET, 8)
         );
         u64::from_le_bytes(bytes)
     }
 
-    pub fn parse_content_length(ss: &Ref<'_, StartStorage>, offset: usize) -> u64 {
+    pub fn parse_content_length(ss: &RecoveryUnit, offset: usize) -> u64 {
         let mut bytes = [0u8; 8];
         bytes.copy_from_slice(
-            &ss[offset+DOCUMENT_CONTENT_LENGHT_OFFSET
-            ..offset+DOCUMENT_CONTENT_OFFSET]
+            &ss.effective_view(offset+DOCUMENT_CONTENT_LENGHT_OFFSET, 8)
+
         );
         u64::from_le_bytes(bytes)
     }
 
-    pub fn parse_content(ss: &Ref<'_, StartStorage>, offset: usize, content_length: usize) -> Vec<u8> {
-        ss[offset + DOCUMENT_CONTENT_OFFSET
-            ..offset + DOCUMENT_CONTENT_OFFSET + content_length]
+    pub fn parse_content(ss: &RecoveryUnit, offset: usize, content_length: usize) -> Vec<u8> {
+        ss.effective_view(offset+DOCUMENT_CONTENT_OFFSET, content_length)
             .to_vec()
     }
 

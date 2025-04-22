@@ -52,6 +52,37 @@ impl RecoveryUnit {
         }
         self.pending_ops.clear();
     }
+
+    pub fn effective_view(&self, offset: usize, len: usize) -> Vec<u8> {
+        // Start with the base data from the storage
+        let mut result = self.storage.borrow()[offset..offset + len].to_vec();
+
+        // Apply all pending writes that affect this range
+        for op in &self.pending_ops {
+            let op_start = op.offset;
+            let op_end = op.offset + op.new_data.len();
+            let view_start = offset;
+            let view_end = offset + len;
+
+            // Find overlap
+            if op_end > view_start && op_start < view_end {
+                let overlap_start = op_start.max(view_start);
+                let overlap_end = op_end.min(view_end);
+                let result_start = overlap_start - view_start;
+                let op_data_start = overlap_start - op_start;
+
+                let count = overlap_end - overlap_start;
+                result[result_start..result_start + count]
+                    .copy_from_slice(&op.new_data[op_data_start..op_data_start + count]);
+            }
+        }
+
+        result
+    }
+
+    pub fn is_committed(&self) -> bool {
+        self.committed
+    }
 }
 
 impl Drop for RecoveryUnit {
@@ -59,5 +90,51 @@ impl Drop for RecoveryUnit {
         if !self.committed {
             self.rollback();
         }
+    }
+}
+
+#[test]
+fn test_atomic_commit_and_rollback() {
+    use std::rc::Rc;
+    use std::cell::RefCell;
+    use start_storage::StartStorage;
+
+    // Set up initial storage
+    let storage = Rc::new(RefCell::new(StartStorage::in_memory()));
+    storage.borrow_mut().resize(16).unwrap();
+    {
+        let mut s = storage.borrow_mut();
+        s[0..4].copy_from_slice(&[1, 2, 3, 4]);
+        s[4..8].copy_from_slice(&[5, 6, 7, 8]);
+    }
+
+    // Simulate commit
+    {
+        let mut ru = RecoveryUnit::new(storage.clone());
+        ru.write(0, &[10, 11, 12, 13]);
+        ru.write(4, &[20, 21, 22, 23]);
+        ru.commit();
+        assert!(ru.is_committed());
+    }
+
+    {
+        let s = storage.borrow();
+        assert_eq!(&s[0..4], &[10, 11, 12, 13]);
+        assert_eq!(&s[4..8], &[20, 21, 22, 23]);
+    }
+
+    // Simulate rollback
+    {
+        let mut ru = RecoveryUnit::new(storage.clone());
+        ru.write(0, &[100, 101, 102, 103]);
+        ru.write(4, &[200, 201, 202, 203]);
+        assert!(!ru.is_committed()); // hasn't been committed yet
+        // ru drops without commit => triggers rollback
+    }
+
+    {
+        let s = storage.borrow();
+        assert_eq!(&s[0..4], &[10, 11, 12, 13]);
+        assert_eq!(&s[4..8], &[20, 21, 22, 23]);
     }
 }

@@ -2,7 +2,7 @@ use std::{cell::{Ref, RefCell}, rc::Rc};
 
 use start_storage::StartStorage;
 
-use super::{catalog::collection::{RawDocument, DOCUMENT_CONTENT_LENGHT_OFFSET, DOCUMENT_CONTENT_OFFSET}, operation_context::OperationContext, storage::record_state};
+use super::{catalog::collection::{RawDocument, DOCUMENT_CONTENT_LENGHT_OFFSET, DOCUMENT_CONTENT_OFFSET}, operation_context::OperationContext, recovery_unit::RecoveryUnit, storage::record_state};
 
 #[derive(Debug, Clone)]
 pub struct Collection {
@@ -34,11 +34,11 @@ impl Collection {
         self,
         op_ctx: &mut OperationContext,
         data: &[u8]
-    ) {
+    ) -> usize {
         let storage = op_ctx.storage();
         let allocated_space = record_state::allocate_extent(storage.borrow_mut(), data.len());
         println!("Allotaed: {}", allocated_space);
-        let last = self.last_document(storage.borrow());
+        let last = self.last_document(&op_ctx.rc_unit);
         println!("Last: {}", last);
 
         println!("Length");
@@ -51,6 +51,7 @@ impl Collection {
         } else {
             op_ctx.rc_unit.write(last, &allocated_space.to_le_bytes());
         }
+        allocated_space
     }
 
     pub fn delete_document() {}
@@ -63,13 +64,12 @@ impl Collection {
 
     pub fn last_document(
         &self,
-        storage: Ref<'_, StartStorage>,
+        rc_unit: &RecoveryUnit,
     ) -> usize {
-        let entry_point = self.next_document;
-        let mut next_offset  = entry_point as usize;
+        let mut next_offset  = self.next_document;
 
         while next_offset != 0 {
-            let raw_doc_next = RawDocument::parse_next_document(&storage, next_offset);
+            let raw_doc_next = RawDocument::parse_next_document(rc_unit, next_offset);
     
             if raw_doc_next == 0 {
                 return next_offset;

@@ -8,7 +8,7 @@ pub fn insert(
     collection: &str,
     document: Bson
 ) {
-    let op_ctx = OperationContext::new(ctx);
+    let mut op_ctx = OperationContext::new(ctx);
 
     let catalog = 
         op_ctx.catalog().borrow_mut()
@@ -16,18 +16,15 @@ pub fn insert(
 
     let content = bson::to_vec(&document).unwrap();
     
-    let raw_document = RawDocument {
-        next_document: 0,
-        content_length: content.len() as u64,
-        content: content,
-    };
-    let meta = catalog.borrow_mut().acquire_collection_or_create(collection, &op_ctx);
+    let meta = catalog.borrow_mut().acquire_collection_or_create(collection, &mut op_ctx);
 
-    let new_doc_id = ops::insert::insert(&op_ctx, meta, raw_document);
+    let new_doc_id = ops::insert::insert(&mut op_ctx, meta, &content);
 
     let mut binding = catalog.borrow_mut();
-    let colmeta = binding.collection_metadata.get_mut(collection).unwrap();
-    if colmeta.next_document == 0 {
-        colmeta.next_document = new_doc_id;
+    let col = binding.collection_metadata.get_mut(collection).unwrap();
+    if col.next_document == 0 {
+        col.next_document = new_doc_id;
     };
+
+    op_ctx.rc_unit.commit();
 }
