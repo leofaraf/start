@@ -14,15 +14,10 @@ path = "src/lib.rs"
 name = "start_bin"
 path = "src/main.rs"
 
-[workspace]
-resolver = "2"
-members = [ "start-sql", "start-storage" ]
-
 [dependencies]
 serde = { version = "1.0", features = ["derive"] }
 memmap2 = "0.9.5"
 bson = "2.14.0"
-start-storage = { version = "0.1.0", path = "./start-storage/" }
 
 [dependencies.uuid]
 version = "1.16.0"

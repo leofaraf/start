@@ -1,6 +1,6 @@
 use std::{cell::{RefCell, RefMut}, rc::Rc};
 
-use start_storage::StartStorage;
+use super::storage::start_storage::StartStorage;
 
 pub struct WriteOp {
     pub offset: usize,
@@ -97,7 +97,6 @@ impl Drop for RecoveryUnit {
 fn test_atomic_commit_and_rollback() {
     use std::rc::Rc;
     use std::cell::RefCell;
-    use start_storage::StartStorage;
 
     // Set up initial storage
     let storage = Rc::new(RefCell::new(StartStorage::in_memory()));

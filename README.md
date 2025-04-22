@@ -88,6 +88,7 @@ find({args}) [x]
 - [ ] make lazy col. check if collection catalog lookup don't find
 - [ ] indexes
 - [ ] SQL parsing
+- [ ] Concurency (RwLock)
 
 ## How does it works?
 

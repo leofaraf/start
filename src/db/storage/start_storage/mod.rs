@@ -1,4 +1,4 @@
-use std::{error::Error, fs::{File, OpenOptions}, ops::{Index, IndexMut}, path::PathBuf};
+use std::{error::Error, fs::OpenOptions, ops::{Index, IndexMut}, path::PathBuf};
 
 use memmap2::MmapMut;
 

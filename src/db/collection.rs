@@ -1,8 +1,6 @@
 use std::{cell::{Ref, RefCell}, rc::Rc};
 
-use start_storage::StartStorage;
-
-use super::{catalog::collection::{RawDocument, DOCUMENT_CONTENT_LENGHT_OFFSET, DOCUMENT_CONTENT_OFFSET}, operation_context::OperationContext, recovery_unit::RecoveryUnit, storage::record_state};
+use super::{catalog::collection::{RawDocument, DOCUMENT_CONTENT_LENGHT_OFFSET, DOCUMENT_CONTENT_OFFSET}, operation_context::OperationContext, recovery_unit::RecoveryUnit, storage::{record_state, start_storage::StartStorage}};
 
 #[derive(Debug, Clone)]
 pub struct Collection {

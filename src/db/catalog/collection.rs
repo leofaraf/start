@@ -1,7 +1,6 @@
 use std::{cell::{Ref, RefCell, RefMut}, collections::HashMap, rc::Rc, str};
 
 use bson::Bson;
-use start_storage::StartStorage;
 
 use crate::db::{collection::{Collection, _SYSTEM_MASTER}, operation_context::OperationContext, ops::insert::insert, recovery_unit::RecoveryUnit};
 
@@ -92,22 +91,16 @@ impl RawDocument {
             .to_vec()
     }
 
-    pub fn write_next_document(ss: &mut RefMut<'_, StartStorage>, offset: usize, next_offset: usize) {
-        ss[offset+DOCUMENT_NEXT_DOCUMENT_OFFSET
-        ..offset+DOCUMENT_CONTENT_LENGHT_OFFSET]
-        .copy_from_slice(&next_offset.to_le_bytes());
+    pub fn write_next_document(ss: &mut RecoveryUnit, offset: usize, next_offset: usize) {
+        ss.write(offset+DOCUMENT_NEXT_DOCUMENT_OFFSET, &next_offset.to_le_bytes());
     }
 
-    pub fn write_content_length(ss: &mut RefMut<'_, StartStorage>, offset: usize, content_length: usize) {
-        ss[offset+DOCUMENT_CONTENT_LENGHT_OFFSET
-        ..offset+DOCUMENT_CONTENT_OFFSET]
-        .copy_from_slice(&content_length.to_le_bytes());
+    pub fn write_content_length(ss: &mut RecoveryUnit, offset: usize, content_length: usize) {
+        ss.write(offset+DOCUMENT_CONTENT_LENGHT_OFFSET, &content_length.to_le_bytes());
     }
 
-    pub fn write_content(ss: &mut RefMut<'_, StartStorage>, offset: usize, content: &[u8]) {
-        ss[offset+DOCUMENT_CONTENT_OFFSET
-        ..offset+DOCUMENT_CONTENT_OFFSET+content.len()]
-        .copy_from_slice(content);
+    pub fn write_content(ss: &mut RecoveryUnit, offset: usize, content: &[u8]) {
+        ss.write(offset+DOCUMENT_CONTENT_OFFSET, content);
     }
 }
 

@@ -335,19 +335,7 @@ dependencies = [
  "bson",
  "memmap2",
  "serde",
- "start-storage",
  "uuid",
-]
-
-[[package]]
-name = "start-sql"
-version = "0.1.0"
-
-[[package]]
-name = "start-storage"
-version = "0.1.0"
-dependencies = [
- "memmap2",
 ]
 
 [[package]]

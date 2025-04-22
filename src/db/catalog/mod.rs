@@ -1,7 +1,8 @@
 use std::{cell::RefCell, rc::Rc};
 
 use collection::CollectionCatalog;
-use start_storage::StartStorage;
+
+use super::storage::start_storage::StartStorage;
 
 pub mod collection;
 pub mod database;

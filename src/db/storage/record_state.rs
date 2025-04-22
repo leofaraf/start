@@ -1,8 +1,8 @@
 use std::cell::RefMut;
 
-use start_storage::StartStorage;
-
 use crate::db::{catalog::collection::DOCUMENT_CONTENT_OFFSET, operation_context::ensure_capacity};
+
+use super::start_storage::StartStorage;
 
 pub fn find_available_space() {}
 // Create new space, link new space to collection
