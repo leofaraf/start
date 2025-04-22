@@ -66,25 +66,19 @@ impl Collection {
         storage: Ref<'_, StartStorage>,
     ) -> usize {
         let entry_point = self.next_document;
-        println!("EntryPoint: {}", entry_point);
+        let mut next_offset  = entry_point as usize;
 
-        if entry_point == 0 {
-            self.offset
-        } else {
-            let mut next_offset  = entry_point as usize;
+        while next_offset != 0 {
+            let raw_doc_next = RawDocument::parse_next_document(&storage, next_offset);
     
-            while next_offset != 0 {
-                let raw_doc_next = RawDocument::parse_next_document(&storage, next_offset);
-        
-                if raw_doc_next == 0 {
-                    return next_offset;
-                }
-                
-                next_offset = raw_doc_next as usize; 
+            if raw_doc_next == 0 {
+                return next_offset;
             }
-
-            next_offset
+            
+            next_offset = raw_doc_next as usize; 
         }
+
+        next_offset
     }
 
     pub fn write_next_document(
