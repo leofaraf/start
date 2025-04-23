@@ -85,7 +85,6 @@ Now, impliment A__D (atomicity, consistency, isolation, durability).
 
 1. Atomicity
 - [X] Basic functional for all operations (RecoveryUnit)
-- [ ] Atomic collection catalog
 - [ ] Session catalog (TransactionParticipant -> txnNumber, recovery unit (changes) )
 - [ ] Multi-document transactions (based on session catalog)
 - [ ] Fully “All or Nothing” atomocity

@@ -15,7 +15,7 @@ pub fn find(
         op_ctx.catalog().borrow()
         .collection();
 
-    let meta = autocol.borrow().lookup_collection(collection);
+    let meta = autocol.borrow().lookup_collection(&op_ctx, collection);
 
     let plan = QueryPlanner::build_plan(meta, filter, skip, limit);
     plan_executor::execute_plan(op_ctx, plan)

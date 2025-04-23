@@ -1,8 +1,8 @@
-use std::{cell::{Ref, RefCell}, path::PathBuf, rc::Rc, sync::Arc};
+use std::{cell::RefCell, path::PathBuf, rc::Rc};
 
 use crate::HandleResult;
 
-use super::{catalog::Catalog, header::{get_header, Header}, operation_context::OperationContext, recovery_unit::RecoveryUnit, storage::start_storage::StartStorage};
+use super::{catalog::Catalog, header::get_header, operation_context::OperationContext, storage::start_storage::StartStorage};
 
 pub struct ServiceContext {
     storage: Rc<RefCell<StartStorage>>,

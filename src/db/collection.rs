@@ -12,8 +12,14 @@ pub struct Collection {
 /// We always assume that database created master table physically
 pub const _SYSTEM_MASTER: Collection = Collection {
     name: *b"_system-master\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0",
-    next_document: 0,
+    next_document: 156,
     offset: 100
+};
+
+pub const _SYSTEM_TRASH: Collection = Collection {
+    name: *b"_system-trash\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0",
+    next_document: 0,
+    offset: 156
 };
 
 impl Collection {
@@ -79,6 +85,7 @@ impl Collection {
         next_offset
     }
 
+    #[deprecated]
     pub fn write_next_document(
         ss: Rc<RefCell<StartStorage>>,
         offset: usize,
@@ -90,21 +97,24 @@ impl Collection {
         .copy_from_slice(&next_offset.to_le_bytes());
     }
 
+    #[deprecated]
     pub fn parse(ss: &Ref<'_, StartStorage>, offset: usize) -> Collection {
         Collection {
             name: Self::parse_name(ss, offset),
-            next_document: Self::next_document(ss, offset),
+            next_document: Self::parse_next_document(ss, offset),
             offset
         }
     }
 
+    #[deprecated]
     pub fn parse_name(ss: &Ref<'_, StartStorage>, offset: usize) -> [u8; 32] {
         let mut bytes = [0u8; 32];
         bytes.copy_from_slice(&ss[offset..offset+32]);
         bytes
     }
 
-    pub fn next_document(ss: &Ref<'_, StartStorage>, offset: usize) -> usize {
+    #[deprecated]
+    pub fn parse_next_document(ss: &Ref<'_, StartStorage>, offset: usize) -> usize {
         let mut bytes = [0u8; 8];
         bytes.copy_from_slice(&ss[offset+32..offset+40]);
         u64::from_le_bytes(bytes) as usize

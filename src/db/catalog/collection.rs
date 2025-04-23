@@ -1,4 +1,4 @@
-use std::{cell::{Ref, RefCell, RefMut}, collections::HashMap, rc::Rc, str};
+use std::{collections::HashMap, str};
 
 use bson::Bson;
 
@@ -22,13 +22,33 @@ impl CollectionCatalog {
         }
     }
 
-    pub fn lookup_collection(&self, name: &str) -> Collection {
-        let col = match self.collection_metadata.get(name) {
-            Some(col) => col.clone(),
-            None => Collection::new(name, 0)
-        };
+    pub fn lookup_collection(&self, op_ctx: &OperationContext, colname: &str) -> Collection {
+        let mut next_document = _SYSTEM_MASTER.next_document;
+        let storage = op_ctx.storage();
 
-        col
+        while next_document != 0 {
+            let name = Collection::parse_name(&storage.borrow(), 
+                next_document + DOCUMENT_CONTENT_OFFSET);
+
+            if let Ok(text) = std::str::from_utf8(&name) {
+                if text == colname {
+                    let next_document = Collection::parse_next_document(&storage.borrow(), 
+                        next_document + DOCUMENT_CONTENT_OFFSET);
+
+                    let collection = Collection {
+                        name,
+                        next_document,
+                        offset: next_document,
+                    };
+
+                    return collection;
+                }
+            }
+
+            next_document = RawDocument::parse_next_document(&op_ctx.rc_unit, next_document) as usize
+        }
+        
+        Collection::new(colname, 0)
     }
 
     pub fn acquire_collection_or_create(&mut self, name: &str, op_ctx: &mut OperationContext) -> Collection {
