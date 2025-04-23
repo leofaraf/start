@@ -1,4 +1,4 @@
-use std::{collections::HashMap, rc::{Rc, Weak}};
+use std::{cell::RefCell, collections::HashMap, rc::{Rc, Weak}};
 
 use uuid::Uuid;
 
@@ -18,16 +18,26 @@ impl SessionCatalog {
 pub struct Session {
     sid: Uuid,
     ctx: Weak<ServiceContext>,
-    transaction: Option<Transaction>
+    transaction: Option<Rc<Transaction>>
 }
 
 impl Session {
     pub fn ctx(&self) -> Option<Rc<ServiceContext>> {
         self.ctx.upgrade()
     }
+
+    pub fn transaction(&self) -> Option<Rc<Transaction>> {
+        self.transaction.clone()
+    }
 }
 
 pub struct Transaction {
     txid: Uuid,
-    rc_unit: RecoveryUnit
+    rc_unit: Rc<RefCell<RecoveryUnit>>
+}
+
+impl Transaction {
+    pub fn rc_unit(&self) -> Rc<RefCell<RecoveryUnit>> {
+        self.rc_unit.clone()
+    }
 }

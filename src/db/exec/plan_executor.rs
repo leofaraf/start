@@ -8,9 +8,10 @@ pub fn execute_plan(op_ctx: OperationContext, plan: QueryPlan) -> Vec<Bson> {
     let mut result = vec![];
     
     let mut next_offset = plan.collection.next_document as usize;
+    let rc_unit = op_ctx.rc_unit();
     
     while next_offset != 0 {
-        let raw_doc = RawDocument::parse(&op_ctx.rc_unit, next_offset);
+        let raw_doc = RawDocument::parse(&rc_unit.borrow(), next_offset);
         println!("RawDoc: {:?}", raw_doc);
 
         if let Ok(text) = std::str::from_utf8(&raw_doc.content) {

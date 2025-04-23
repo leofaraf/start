@@ -1,4 +1,4 @@
-use std::{collections::HashMap, str};
+use std::{cell::RefMut, collections::HashMap, str};
 
 use bson::Bson;
 
@@ -27,8 +27,10 @@ impl CollectionCatalog {
 
         println!("Colname: {}", colname);
 
+        let rc_unit = op_ctx.rc_unit();
+
         while next_document != 0 {
-            let name = Collection::parse_name(&op_ctx.rc_unit, 
+            let name = Collection::parse_name(&rc_unit.borrow(), 
                 next_document + DOCUMENT_CONTENT_OFFSET);
 
             if let Ok(text) = std::str::from_utf8(&name) {
@@ -36,10 +38,10 @@ impl CollectionCatalog {
                 println!("text: '{}', colname: '{}'", text, colname);
                 if text.eq(colname) {
                     println!("equals");
-                    let next_d = op_ctx.rc_unit.effective_view(next_document + DOCUMENT_CONTENT_OFFSET, 40);
+                    let next_d = rc_unit.borrow().effective_view(next_document + DOCUMENT_CONTENT_OFFSET, 40);
                     println!("NextD: {:?} ({})", next_d, next_document);
 
-                    let col_next_document = Collection::parse_next_document(&op_ctx.rc_unit, 
+                    let col_next_document = Collection::parse_next_document(&rc_unit.borrow(), 
                         next_document + DOCUMENT_CONTENT_OFFSET);
 
                     let collection = Collection {
@@ -54,7 +56,7 @@ impl CollectionCatalog {
                 }
             }
 
-            next_document = RawDocument::parse_next_document(&op_ctx.rc_unit, next_document) as usize
+            next_document = RawDocument::parse_next_document(&rc_unit.borrow(), next_document) as usize
         }
 
         let col = Collection::new(colname, 0);
@@ -68,9 +70,10 @@ impl CollectionCatalog {
         let mut next_document = _SYSTEM_MASTER.next_document;
 
         println!("Colname: {}", colname);
+        let rc_unit = op_ctx.rc_unit();
 
         while next_document != 0 {
-            let name = Collection::parse_name(&op_ctx.rc_unit, 
+            let name = Collection::parse_name(&rc_unit.borrow(), 
                 next_document + DOCUMENT_CONTENT_OFFSET);
 
             if let Ok(text) = std::str::from_utf8(&name) {
@@ -78,7 +81,7 @@ impl CollectionCatalog {
                 println!("text: '{}', colname: '{}'", text, colname);
                 if text.eq(colname) {
                     println!("equals");
-                    let col_next_document = Collection::parse_next_document(&op_ctx.rc_unit, 
+                    let col_next_document = Collection::parse_next_document(&rc_unit.borrow(), 
                         next_document + DOCUMENT_CONTENT_OFFSET);
 
                     let collection = Collection {
@@ -92,7 +95,7 @@ impl CollectionCatalog {
                 }
             }
 
-            next_document = RawDocument::parse_next_document(&op_ctx.rc_unit, next_document) as usize
+            next_document = RawDocument::parse_next_document(&rc_unit.borrow(), next_document) as usize
         }
 
         let mut collection = Collection::new(colname, 0);
@@ -147,16 +150,16 @@ impl RawDocument {
             .to_vec()
     }
 
-    pub fn write_next_document(ss: &mut RecoveryUnit, offset: usize, next_offset: usize) {
-        ss.write(offset+DOCUMENT_NEXT_DOCUMENT_OFFSET, &next_offset.to_le_bytes());
+    pub fn write_next_document(mut rc_unit: RefMut<'_, RecoveryUnit>, offset: usize, next_offset: usize) {
+        rc_unit.write(offset+DOCUMENT_NEXT_DOCUMENT_OFFSET, &next_offset.to_le_bytes());
     }
 
-    pub fn write_content_length(ss: &mut RecoveryUnit, offset: usize, content_length: usize) {
-        ss.write(offset+DOCUMENT_CONTENT_LENGHT_OFFSET, &content_length.to_le_bytes());
+    pub fn write_content_length(mut rc_unit: RefMut<'_, RecoveryUnit>, offset: usize, content_length: usize) {
+        rc_unit.write(offset+DOCUMENT_CONTENT_LENGHT_OFFSET, &content_length.to_le_bytes());
     }
 
-    pub fn write_content(ss: &mut RecoveryUnit, offset: usize, content: &[u8]) {
-        ss.write(offset+DOCUMENT_CONTENT_OFFSET, content);
+    pub fn write_content(mut rc_unit: RefMut<'_, RecoveryUnit>, offset: usize, content: &[u8]) {
+        rc_unit.write(offset+DOCUMENT_CONTENT_OFFSET, content);
     }
 }
 

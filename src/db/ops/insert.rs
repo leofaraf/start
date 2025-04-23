@@ -13,8 +13,9 @@ pub fn insert_one_by_offset(
     offset: usize,
     raw_document: RawDocument
 ) {
+    let rc_unit = op_ctx.rc_unit();
     ensure_capacity(&mut op_ctx.storage().borrow_mut(), offset + raw_document.len()).unwrap();
-    RawDocument::write_next_document(&mut op_ctx.rc_unit, offset, 0);
-    RawDocument::write_content_length(&mut op_ctx.rc_unit, offset, raw_document.content_length as usize);
-    RawDocument::write_content(&mut op_ctx.rc_unit, offset, &raw_document.content);
+    RawDocument::write_next_document(rc_unit.borrow_mut(), offset, 0);
+    RawDocument::write_content_length(rc_unit.borrow_mut(), offset, raw_document.content_length as usize);
+    RawDocument::write_content(rc_unit.borrow_mut(), offset, &raw_document.content);
 }

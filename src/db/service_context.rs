@@ -34,7 +34,7 @@ pub fn in_memory() -> Rc<ServiceContext> {
     let init_session = SessionCatalog::acquire(service_context.clone());
     let mut init_op_ctx = OperationContext::new(&init_session);
     let _header = get_header(&mut init_op_ctx);
-    init_op_ctx.rc_unit.commit();
+    init_op_ctx.rc_unit().borrow_mut().commit();
 
     service_context
 }
@@ -54,7 +54,7 @@ pub fn embedded(path: PathBuf) -> HandleResult<Rc<ServiceContext>> {
     let init_session = SessionCatalog::acquire(service_context.clone());
     let mut init_op_ctx = OperationContext::new(&init_session);
     let _header = get_header(&mut init_op_ctx);
-    init_op_ctx.rc_unit.commit();
+    init_op_ctx.rc_unit().borrow_mut().commit();
 
     Ok(service_context)
 }

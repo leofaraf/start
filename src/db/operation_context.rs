@@ -5,8 +5,7 @@ use super::{catalog::{session::Session, Catalog}, recovery_unit::RecoveryUnit, s
 pub struct OperationContext {
     storage: Rc<RefCell<StartStorage>>,
     catalog: Rc<RefCell<Catalog>>,
-    pub rc_unit: RecoveryUnit,
-    txn_id: Option<u64>, // if supporting transactions
+    rc_unit: Rc<RefCell<RecoveryUnit>>,
 }
 
 impl OperationContext {
@@ -16,8 +15,10 @@ impl OperationContext {
         Self {
             storage: ctx.storage(),
             catalog: ctx.catalog(),
-            rc_unit: RecoveryUnit::new(ctx.storage()),
-            txn_id: None,
+            rc_unit: match session.transaction() {
+                Some(tx) => tx.rc_unit(),
+                None => Rc::new(RefCell::new(RecoveryUnit::new(ctx.storage()))),
+            },
         }
     }
 
@@ -27,6 +28,10 @@ impl OperationContext {
 
     pub fn catalog(&self) -> Rc<RefCell<Catalog>> {
         Rc::clone(&self.catalog)
+    }
+
+    pub fn rc_unit(&self) -> Rc<RefCell<RecoveryUnit>> {
+        Rc::clone(&self.rc_unit)
     }
 }
 

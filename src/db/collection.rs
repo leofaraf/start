@@ -42,20 +42,22 @@ impl Collection {
         let storage = op_ctx.storage();
         let allocated_space = record_state::allocate_extent(storage.borrow_mut(), data.len());
         println!("Allotaed: {}", allocated_space);
-        let last = self.last_document(&op_ctx.rc_unit);
+        let last = self.last_document(&op_ctx.rc_unit().borrow());
         println!("Last: {}", last);
 
+        let rc_unit = op_ctx.rc_unit();
+                
         println!("Length");
-        op_ctx.rc_unit.write(allocated_space + DOCUMENT_CONTENT_LENGHT_OFFSET, &data.len().to_le_bytes());
+        rc_unit.borrow_mut().write(allocated_space + DOCUMENT_CONTENT_LENGHT_OFFSET, &data.len().to_le_bytes());
         println!("Content");
-        op_ctx.rc_unit.write(allocated_space + DOCUMENT_CONTENT_OFFSET, data);
+        rc_unit.borrow_mut().write(allocated_space + DOCUMENT_CONTENT_OFFSET, data);
         println!("Linking");
         if last == 0 {
-            op_ctx.rc_unit.write(self.offset + DOCUMENT_CONTENT_OFFSET + 32, &allocated_space.to_le_bytes());
-            let next_d = op_ctx.rc_unit.effective_view(self.offset + DOCUMENT_CONTENT_OFFSET, 40);
+            rc_unit.borrow_mut().write(self.offset + DOCUMENT_CONTENT_OFFSET + 32, &allocated_space.to_le_bytes());
+            let next_d = op_ctx.rc_unit().borrow().effective_view(self.offset + DOCUMENT_CONTENT_OFFSET, 40);
             println!("NextD: {:?} ({})", next_d, self.offset);
         } else {
-            op_ctx.rc_unit.write(last, &allocated_space.to_le_bytes());
+            rc_unit.borrow_mut().write(last, &allocated_space.to_le_bytes());
         }
         allocated_space
     }
@@ -70,7 +72,7 @@ impl Collection {
 
     pub fn last_document(
         &self,
-        rc_unit: &RecoveryUnit,
+        rc_unit: &Ref<'_, RecoveryUnit>,
     ) -> usize {
         let mut next_offset = self.next_document;
 
@@ -99,21 +101,21 @@ impl Collection {
     //     .copy_from_slice(&next_offset.to_le_bytes());
     // }
 
-    pub fn parse(rc_unit: &RecoveryUnit, offset: usize) -> Collection {
+    pub fn parse(rc_unit: &Ref<'_, RecoveryUnit>, offset: usize) -> Collection {
         Collection {
-            name: Self::parse_name(rc_unit, offset),
-            next_document: Self::parse_next_document(rc_unit, offset),
+            name: Self::parse_name(&rc_unit, offset),
+            next_document: Self::parse_next_document(&rc_unit, offset),
             offset
         }
     }
 
-    pub fn parse_name(rc_unit: &RecoveryUnit, offset: usize) -> [u8; 32] {
+    pub fn parse_name(rc_unit: &Ref<'_, RecoveryUnit>, offset: usize) -> [u8; 32] {
         let mut bytes = [0u8; 32];
         bytes.copy_from_slice(&rc_unit.effective_view(offset, 32));
         bytes
     }
 
-    pub fn parse_next_document(rc_unit: &RecoveryUnit, offset: usize) -> usize {
+    pub fn parse_next_document(rc_unit: &Ref<'_, RecoveryUnit>, offset: usize) -> usize {
         let mut bytes = [0u8; 8];
         bytes.copy_from_slice(&rc_unit.effective_view(offset+32, 8));
         u64::from_le_bytes(bytes) as usize
