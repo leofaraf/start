@@ -20,29 +20,30 @@ fn main() -> HandleResult<()> {
         ctx,
     };
 
-    let american_session = db.get_session();
-    let chinese_session = db.get_session();
+    let session = db.get_session();
 
-    commands::insert::insert(&american_session, "american-ai", bson::to_bson(&Agent {
+    session.start_transaction();
+
+    commands::insert::insert(&session, "american-ai", bson::to_bson(&Agent {
         name: "ChatGPT".to_string(),
         r#type: "AI".to_string(),
         score: 85,
     }).unwrap());
 
-    commands::insert::insert(&chinese_session, "chinese-ai", bson::to_bson(&Agent {
+    commands::insert::insert(&session, "chinese-ai", bson::to_bson(&Agent {
         name: "DeepSeek".to_string(),
         r#type: "AI".to_string(),
         score: 80,
     }).unwrap());
     
-    commands::insert::insert(&american_session, "american-ai", bson::to_bson(&Agent {
+    commands::insert::insert(&session, "american-ai", bson::to_bson(&Agent {
         name: "Cloude".to_string(),
         r#type: "AI".to_string(),
         score: 85,
     }).unwrap());
 
     let result = commands::find::find(
-        &american_session,
+        &session,
         "american-ai",
         None, None, None
     );
@@ -53,6 +54,22 @@ fn main() -> HandleResult<()> {
         println!("Entry: {:?}", entry);
     }
 
+    println!("-------------------");
+
+    session.rollback_transaction();
+
+    let result = commands::find::find(
+        &session,
+        "american-ai",
+        None, None, None
+    );
+    
+    println!("--AfterCollection--");
+    
+    for entry in result {
+        println!("Entry: {:?}", entry);
+    }
+    
     println!("-------------------");
 
     println!("Main took: {}ms", start.elapsed().as_millis());

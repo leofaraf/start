@@ -12,10 +12,12 @@ impl OperationContext {
     pub fn new(session: &Session) -> Self {
         let ctx = session.ctx().unwrap();
 
+        let transaction = session.transaction();
+
         Self {
             storage: ctx.storage(),
             catalog: ctx.catalog(),
-            rc_unit: match session.transaction() {
+            rc_unit: match transaction.borrow().as_ref() {
                 Some(tx) => tx.rc_unit(),
                 None => Rc::new(RefCell::new(RecoveryUnit::new(ctx.storage()))),
             },

@@ -27,7 +27,9 @@ pub fn insert(
     //     col.next_document = new_doc_id;
     // };
 
-    op_ctx.rc_unit().borrow_mut().commit();
+    if session.transaction().borrow().is_none() {
+        op_ctx.rc_unit().borrow_mut().commit();
+    }
     println!("___________________________________________");
 
 }
