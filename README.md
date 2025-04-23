@@ -81,7 +81,7 @@ fn main() -> HandleResult<()> {
 
 ### ACID
 
-Now, impliment A__D (atomicity, consistency, isolation, durability).
+Now, impliment aC__ (atomicity, consistency, isolation, durability).
 
 1. Atomicity
 - [X] Basic functional for all operations (RecoveryUnit)
@@ -91,7 +91,7 @@ Now, impliment A__D (atomicity, consistency, isolation, durability).
 - [ ] Fully “All or Nothing” atomocity
 
 2. Consistency
-- [ ] Develop new: Inconsistent because of "collection catalog"
+- [X] Develop new: Inconsistent because of "collection catalog"
 
 3. Isolation
 - [ ] Locks
