@@ -1,15 +1,15 @@
 use bson::Bson;
 
-use crate::db::{catalog::collection::RawDocument, operation_context::OperationContext, ops, service_context::ServiceContext};
+use crate::db::{catalog::{collection::RawDocument, session::Session}, operation_context::OperationContext, ops, service_context::ServiceContext};
 
 // By the idea it should accept BSON doc with fields
 pub fn insert(
-    ctx: &ServiceContext,
+    session: &Session,
     collection: &str,
     document: Bson
 ) {
     println!("__________________Insert____________________");
-    let mut op_ctx = OperationContext::new(ctx);
+    let mut op_ctx = OperationContext::new(session);
 
     let catalog = 
         op_ctx.catalog().borrow_mut()

@@ -1,6 +1,6 @@
 use std::{cell::{RefCell, RefMut}, rc::Rc};
 
-use super::{catalog::Catalog, recovery_unit::RecoveryUnit, service_context::ServiceContext, storage::start_storage::StartStorage};
+use super::{catalog::{session::Session, Catalog}, recovery_unit::RecoveryUnit, service_context::ServiceContext, storage::start_storage::StartStorage};
 
 pub struct OperationContext {
     storage: Rc<RefCell<StartStorage>>,
@@ -10,11 +10,13 @@ pub struct OperationContext {
 }
 
 impl OperationContext {
-    pub fn new(sc: &ServiceContext) -> Self {
+    pub fn new(session: &Session) -> Self {
+        let ctx = session.ctx().unwrap();
+
         Self {
-            storage: sc.storage(),
-            catalog: sc.catalog(),
-            rc_unit: RecoveryUnit::new(sc.storage()),
+            storage: ctx.storage(),
+            catalog: ctx.catalog(),
+            rc_unit: RecoveryUnit::new(ctx.storage()),
             txn_id: None,
         }
     }

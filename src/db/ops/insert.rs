@@ -1,5 +1,3 @@
-use std::cell::RefMut;
-
 use crate::db::{catalog::collection::RawDocument, collection::Collection, operation_context::{ensure_capacity, OperationContext}, recovery_unit::RecoveryUnit, storage::start_storage::StartStorage};
 
 pub fn insert(

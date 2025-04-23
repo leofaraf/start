@@ -1,7 +1,7 @@
-use std::{error::Error, time::Instant};
+use std::{error::Error, rc::Rc, time::Instant};
 
 use serde::{Deserialize, Serialize};
-use start::db::{commands, operation_context::OperationContext, service_context};
+use start::{db::{commands, operation_context::OperationContext, service_context}, StartDB};
 
 type HandleResult<T> = Result<T, Box<dyn Error>>;
 
@@ -16,27 +16,33 @@ fn main() -> HandleResult<()> {
     let start = Instant::now();
 
     let ctx = service_context::in_memory();
+    let db = StartDB {
+        ctx,
+    };
 
-    commands::insert::insert(&ctx, "american-ai", bson::to_bson(&Agent {
+    let american_session = db.get_session();
+    let chinese_session = db.get_session();
+
+    commands::insert::insert(&american_session, "american-ai", bson::to_bson(&Agent {
         name: "ChatGPT".to_string(),
         r#type: "AI".to_string(),
         score: 85,
     }).unwrap());
 
-    commands::insert::insert(&ctx, "chinese-ai", bson::to_bson(&Agent {
+    commands::insert::insert(&chinese_session, "chinese-ai", bson::to_bson(&Agent {
         name: "DeepSeek".to_string(),
         r#type: "AI".to_string(),
         score: 80,
     }).unwrap());
     
-    commands::insert::insert(&ctx, "american-ai", bson::to_bson(&Agent {
+    commands::insert::insert(&american_session, "american-ai", bson::to_bson(&Agent {
         name: "Cloude".to_string(),
         r#type: "AI".to_string(),
         score: 85,
     }).unwrap());
 
     let result = commands::find::find(
-        &ctx,
+        &american_session,
         "american-ai",
         None, None, None
     );

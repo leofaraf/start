@@ -92,12 +92,14 @@ Now, impliment aC__ (atomicity, consistency, isolation, durability).
 
 2. Consistency
 - [X] Develop new: Inconsistent because of "collection catalog"
+- [ ] Validation hooks or constraints during commit
 
 3. Isolation
 - [ ] Locks
 
 4. Durability
 - [ ] WAL (Write Ahead Log)
+- [ ] Crash recovery on startup
 
 ### Rest
 
