@@ -15,28 +15,35 @@ struct Agent {
 }
 
 fn main() -> HandleResult<()> {
-    let ctx = start::service_context::in_memory();
+    let ctx = service_context::in_memory();
+    let db = StartDB {
+        ctx,
+    };
 
-    commands::insert::insert(&ctx, "american-ai", bson::to_bson(&Agent {
+    let session = db.get_session();
+
+    session.start_transaction();
+
+    commands::insert::insert(&session, "american-ai", bson::to_bson(&Agent {
         name: "ChatGPT".to_string(),
         r#type: "AI".to_string(),
         score: 85,
     }).unwrap());
 
-    commands::insert::insert(&ctx, "chinese-ai", bson::to_bson(&Agent {
+    commands::insert::insert(&session, "chinese-ai", bson::to_bson(&Agent {
         name: "DeepSeek".to_string(),
         r#type: "AI".to_string(),
         score: 80,
     }).unwrap());
     
-    commands::insert::insert(&ctx, "american-ai", bson::to_bson(&Agent {
+    commands::insert::insert(&session, "american-ai", bson::to_bson(&Agent {
         name: "Cloude".to_string(),
         r#type: "AI".to_string(),
         score: 85,
     }).unwrap());
 
     let result = commands::find::find(
-        &ctx,
+        &session,
         "american-ai",
         None, None, None
     );
@@ -48,6 +55,8 @@ fn main() -> HandleResult<()> {
     }
 
     println!("-------------------");
+
+    session.commit_transaction();
 
     // output:
     // ----Collection-----
