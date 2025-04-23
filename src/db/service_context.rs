@@ -31,8 +31,9 @@ pub fn in_memory() -> ServiceContext {
 
     // Init operation context
 
-    let init_op_ctx = OperationContext::new(&service_context);
-    let _header = get_header(init_op_ctx);
+    let mut init_op_ctx = OperationContext::new(&service_context);
+    let _header = get_header(&mut init_op_ctx);
+    init_op_ctx.rc_unit.commit();
 
     service_context
 }
@@ -48,9 +49,10 @@ pub fn embedded(path: PathBuf) -> HandleResult<ServiceContext> {
     };
 
     // Init operation context
-
-    let init_op_ctx = OperationContext::new(&service_context);
-    let _header = get_header(init_op_ctx);
+    
+    let mut init_op_ctx = OperationContext::new(&service_context);
+    let _header = get_header(&mut init_op_ctx);
+    init_op_ctx.rc_unit.commit();
 
     Ok(service_context)
 }

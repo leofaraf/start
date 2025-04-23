@@ -52,6 +52,8 @@ impl Collection {
         println!("Linking");
         if last == 0 {
             op_ctx.rc_unit.write(self.offset + DOCUMENT_CONTENT_OFFSET + 32, &allocated_space.to_le_bytes());
+            let next_d = op_ctx.rc_unit.effective_view(self.offset + DOCUMENT_CONTENT_OFFSET, 40);
+            println!("NextD: {:?} ({})", next_d, self.offset);
         } else {
             op_ctx.rc_unit.write(last, &allocated_space.to_le_bytes());
         }
@@ -70,7 +72,7 @@ impl Collection {
         &self,
         rc_unit: &RecoveryUnit,
     ) -> usize {
-        let mut next_offset  = self.next_document;
+        let mut next_offset = self.next_document;
 
         while next_offset != 0 {
             let raw_doc_next = RawDocument::parse_next_document(rc_unit, next_offset);
@@ -85,38 +87,35 @@ impl Collection {
         next_offset
     }
 
-    #[deprecated]
-    pub fn write_next_document(
-        ss: Rc<RefCell<StartStorage>>,
-        offset: usize,
-        next_offset: usize
-    ) {
-        let mut ss = ss.borrow_mut();
-        ss[offset+DOCUMENT_CONTENT_OFFSET+32
-        ..offset+DOCUMENT_CONTENT_OFFSET+40]
-        .copy_from_slice(&next_offset.to_le_bytes());
-    }
+    // #[deprecated]
+    // pub fn write_next_document(
+    //     ss: Rc<RefCell<StartStorage>>,
+    //     offset: usize,
+    //     next_offset: usize
+    // ) {
+    //     let mut ss = ss.borrow_mut();
+    //     ss[offset+DOCUMENT_CONTENT_OFFSET+32
+    //     ..offset+DOCUMENT_CONTENT_OFFSET+40]
+    //     .copy_from_slice(&next_offset.to_le_bytes());
+    // }
 
-    #[deprecated]
-    pub fn parse(ss: &Ref<'_, StartStorage>, offset: usize) -> Collection {
+    pub fn parse(rc_unit: &RecoveryUnit, offset: usize) -> Collection {
         Collection {
-            name: Self::parse_name(ss, offset),
-            next_document: Self::parse_next_document(ss, offset),
+            name: Self::parse_name(rc_unit, offset),
+            next_document: Self::parse_next_document(rc_unit, offset),
             offset
         }
     }
 
-    #[deprecated]
-    pub fn parse_name(ss: &Ref<'_, StartStorage>, offset: usize) -> [u8; 32] {
+    pub fn parse_name(rc_unit: &RecoveryUnit, offset: usize) -> [u8; 32] {
         let mut bytes = [0u8; 32];
-        bytes.copy_from_slice(&ss[offset..offset+32]);
+        bytes.copy_from_slice(&rc_unit.effective_view(offset, 32));
         bytes
     }
 
-    #[deprecated]
-    pub fn parse_next_document(ss: &Ref<'_, StartStorage>, offset: usize) -> usize {
+    pub fn parse_next_document(rc_unit: &RecoveryUnit, offset: usize) -> usize {
         let mut bytes = [0u8; 8];
-        bytes.copy_from_slice(&ss[offset+32..offset+40]);
+        bytes.copy_from_slice(&rc_unit.effective_view(offset+32, 8));
         u64::from_le_bytes(bytes) as usize
     }
 

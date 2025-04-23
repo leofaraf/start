@@ -2,20 +2,20 @@ use std::{cell::{RefCell, RefMut}, rc::Rc};
 
 use super::{catalog::collection::RawDocument, collection::{_SYSTEM_MASTER, _SYSTEM_TRASH}, operation_context::{ensure_capacity, OperationContext}, ops::{self, insert::insert_one_by_offset}, storage::start_storage::StartStorage};
 
-pub fn get_header(mut op_ctx: OperationContext) -> Header {
+pub fn get_header(op_ctx: &mut OperationContext) -> Header {
     let storage = op_ctx.storage();
     
     if storage.borrow().len() == 0 {
-        insert_one_by_offset(&mut op_ctx, _SYSTEM_MASTER.offset, RawDocument {
+        insert_one_by_offset(op_ctx, _SYSTEM_MASTER.offset, RawDocument {
             next_document: 0,
             content_length: 40,
             content: _SYSTEM_MASTER.to_bytes(),
         });
 
-        insert_one_by_offset(&mut op_ctx, _SYSTEM_TRASH.offset, RawDocument {
+        insert_one_by_offset(op_ctx, _SYSTEM_TRASH.offset, RawDocument {
             next_document: 0,
             content_length: 40,
-            content: _SYSTEM_MASTER.to_bytes(),
+            content: _SYSTEM_TRASH.to_bytes(),
         });
 
         match Header::create(storage) {

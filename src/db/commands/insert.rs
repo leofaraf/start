@@ -8,6 +8,7 @@ pub fn insert(
     collection: &str,
     document: Bson
 ) {
+    println!("__________________Insert____________________");
     let mut op_ctx = OperationContext::new(ctx);
 
     let catalog = 
@@ -20,11 +21,13 @@ pub fn insert(
 
     let new_doc_id = ops::insert::insert(&mut op_ctx, meta, &content);
 
-    let mut binding = catalog.borrow_mut();
-    let col = binding.collection_metadata.get_mut(collection).unwrap();
-    if col.next_document == 0 {
-        col.next_document = new_doc_id;
-    };
+    // let mut binding = catalog.borrow_mut();
+    // let col = binding.collection_metadata.get_mut(collection).unwrap();
+    // if col.next_document == 0 {
+    //     col.next_document = new_doc_id;
+    // };
 
     op_ctx.rc_unit.commit();
+    println!("___________________________________________");
+
 }

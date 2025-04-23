@@ -24,22 +24,31 @@ impl CollectionCatalog {
 
     pub fn lookup_collection(&self, op_ctx: &OperationContext, colname: &str) -> Collection {
         let mut next_document = _SYSTEM_MASTER.next_document;
-        let storage = op_ctx.storage();
+
+        println!("Colname: {}", colname);
 
         while next_document != 0 {
-            let name = Collection::parse_name(&storage.borrow(), 
+            let name = Collection::parse_name(&op_ctx.rc_unit, 
                 next_document + DOCUMENT_CONTENT_OFFSET);
 
             if let Ok(text) = std::str::from_utf8(&name) {
-                if text == colname {
-                    let next_document = Collection::parse_next_document(&storage.borrow(), 
+                let text = text.trim_matches('\0');
+                println!("text: '{}', colname: '{}'", text, colname);
+                if text.eq(colname) {
+                    println!("equals");
+                    let next_d = op_ctx.rc_unit.effective_view(next_document + DOCUMENT_CONTENT_OFFSET, 40);
+                    println!("NextD: {:?} ({})", next_d, next_document);
+
+                    let col_next_document = Collection::parse_next_document(&op_ctx.rc_unit, 
                         next_document + DOCUMENT_CONTENT_OFFSET);
 
                     let collection = Collection {
                         name,
-                        next_document,
+                        next_document: col_next_document,
                         offset: next_document,
                     };
+
+                    println!("Col: {:?}", collection);
 
                     return collection;
                 }
@@ -47,27 +56,54 @@ impl CollectionCatalog {
 
             next_document = RawDocument::parse_next_document(&op_ctx.rc_unit, next_document) as usize
         }
-        
-        Collection::new(colname, 0)
-    }
 
-    pub fn acquire_collection_or_create(&mut self, name: &str, op_ctx: &mut OperationContext) -> Collection {
-        let col: Collection = match self.collection_metadata.get_mut(name) {
-            Some(col) => col.clone(),
-            None => {
-                let mut collection = Collection::new(name, 0);
+        let col = Collection::new(colname, 0);
 
-                let col_offset = insert(op_ctx, _SYSTEM_MASTER, 
-                    &collection.to_bytes());
-
-                collection.offset = col_offset;
-
-                self.collection_metadata.insert(name.to_string(), collection.clone());
-                collection
-            }
-        };
+        println!("Col: {:?}", col);
 
         col
+    }
+
+    pub fn acquire_collection_or_create(&mut self, colname: &str, op_ctx: &mut OperationContext) -> Collection {
+        let mut next_document = _SYSTEM_MASTER.next_document;
+
+        println!("Colname: {}", colname);
+
+        while next_document != 0 {
+            let name = Collection::parse_name(&op_ctx.rc_unit, 
+                next_document + DOCUMENT_CONTENT_OFFSET);
+
+            if let Ok(text) = std::str::from_utf8(&name) {
+                let text = text.trim_matches('\0');
+                println!("text: '{}', colname: '{}'", text, colname);
+                if text.eq(colname) {
+                    println!("equals");
+                    let col_next_document = Collection::parse_next_document(&op_ctx.rc_unit, 
+                        next_document + DOCUMENT_CONTENT_OFFSET);
+
+                    let collection = Collection {
+                        name,
+                        next_document: col_next_document,
+                        offset: next_document,
+                    };
+                    println!("Col aq: {:?}", collection);
+
+                    return collection;
+                }
+            }
+
+            next_document = RawDocument::parse_next_document(&op_ctx.rc_unit, next_document) as usize
+        }
+
+        let mut collection = Collection::new(colname, 0);
+
+        let col_offset = insert(op_ctx, _SYSTEM_MASTER, 
+            &collection.to_bytes());
+
+        collection.offset = col_offset;
+        println!("Col aq: {:?}", collection);
+
+        collection
     }
 }
 
