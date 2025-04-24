@@ -10,6 +10,7 @@ pub struct CollectionCatalog {
 
 #[derive(Debug)]
 pub struct RawDocument {
+    pub flag_deleted: bool,
     pub next_document: u64,
     pub content_length: u64,
     pub content: Vec<u8>,
@@ -110,22 +111,33 @@ impl CollectionCatalog {
     }
 }
 
-const DOCUMENT_NEXT_DOCUMENT_OFFSET: usize = 0;
-pub const DOCUMENT_CONTENT_LENGHT_OFFSET: usize = 8;
-pub const DOCUMENT_CONTENT_OFFSET: usize = 16;
+pub const DOCUMENT_DELETED: usize = 0;
+pub const DOCUMENT_RESERVED: usize = 1;
+const DOCUMENT_NEXT_DOCUMENT_OFFSET: usize = 4;
+pub const DOCUMENT_CONTENT_LENGHT_OFFSET: usize = 12;
+pub const DOCUMENT_CONTENT_OFFSET: usize = 20;
 
 impl RawDocument {
     pub fn len(&self) -> usize {
-        self.content.len() + 8 + 8
+        self.content.len() + DOCUMENT_CONTENT_OFFSET
     }
 
     pub fn parse(ss: &RecoveryUnit, offset: usize) -> RawDocument {
         let content_length =  Self::parse_content_length(ss, offset);
         RawDocument {
+            flag_deleted: Self::parse_flag_deleted(ss, offset),
             next_document: Self::parse_next_document(ss, offset),
             content_length,
             content: Self::parse_content(ss, offset, content_length as usize),
         }
+    }
+
+    pub fn parse_flag_deleted(ss: &RecoveryUnit, offset: usize) -> bool {
+        ss
+            .effective_view(
+                offset+DOCUMENT_NEXT_DOCUMENT_OFFSET, 1
+            )[0]
+            != 0
     }
 
     pub fn parse_next_document(ss: &RecoveryUnit, offset: usize) -> u64 {
@@ -166,6 +178,7 @@ impl RawDocument {
 impl From<&Collection> for RawDocument {
     fn from(value: &Collection) -> Self {
         Self {
+            flag_deleted: false,
             next_document: 0,
             content_length: Collection::len(),
             content: value.to_bytes(),

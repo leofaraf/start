@@ -7,12 +7,14 @@ pub fn get_header(op_ctx: &mut OperationContext) -> Header {
     
     if storage.borrow().len() == 0 {
         insert_one_by_offset(op_ctx, _SYSTEM_MASTER.offset, RawDocument {
+            flag_deleted: false,
             next_document: 0,
             content_length: 40,
             content: _SYSTEM_MASTER.to_bytes(),
         });
 
         insert_one_by_offset(op_ctx, _SYSTEM_TRASH.offset, RawDocument {
+            flag_deleted: false,
             next_document: 0,
             content_length: 40,
             content: _SYSTEM_TRASH.to_bytes(),

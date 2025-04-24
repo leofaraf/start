@@ -57,7 +57,7 @@ impl Collection {
             let next_d = op_ctx.rc_unit().borrow().effective_view(self.offset + DOCUMENT_CONTENT_OFFSET, 40);
             println!("NextD: {:?} ({})", next_d, self.offset);
         } else {
-            rc_unit.borrow_mut().write(last, &allocated_space.to_le_bytes());
+            RawDocument::write_next_document(rc_unit.borrow_mut(), last, allocated_space);
         }
         allocated_space
     }

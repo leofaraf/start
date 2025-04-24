@@ -2,7 +2,6 @@ use bson::Bson;
 
 use crate::db::{catalog::{collection::RawDocument, session::Session}, operation_context::OperationContext, ops, service_context::ServiceContext};
 
-// By the idea it should accept BSON doc with fields
 pub fn insert(
     session: &Session,
     collection: &str,
@@ -19,7 +18,7 @@ pub fn insert(
     
     let meta = catalog.borrow_mut().acquire_collection_or_create(collection, &mut op_ctx);
 
-    let new_doc_id = ops::insert::insert(&mut op_ctx, meta, &content);
+    ops::insert::insert(&mut op_ctx, meta, &content);
 
     // let mut binding = catalog.borrow_mut();
     // let col = binding.collection_metadata.get_mut(collection).unwrap();
