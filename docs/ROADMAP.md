@@ -17,7 +17,7 @@
 - [ ] Simple bulk update by filter
 
 4. Delete
-- [ ] Delete operation by filters
+- [X] Delete operation by filters
 - [ ] Create _system_trash
 
 ### ACID
