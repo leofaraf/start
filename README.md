@@ -90,14 +90,14 @@ fn main() -> HandleResult<()> {
 
 ### ACID
 
-Now, impliment aC__ (atomicity, consistency, isolation, durability).
+Now, impliment AC__ (atomicity, consistency, isolation, durability).
 
 1. Atomicity
 - [X] Basic functional for all operations (RecoveryUnit)
 - [X] Session catalog (TransactionParticipant -> txnNumber, recovery unit (changes) )
 - [X] Multi-document transactions (based on session catalog)
-- [ ] Refactor Recovery Unit
-- [ ] Fully “All or Nothing” atomocity
+- [X] Refactor Recovery Unit
+- [X] Fully “All or Nothing” atomocity
 
 2. Consistency
 - [X] Develop new: Inconsistent because of "collection catalog"
