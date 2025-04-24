@@ -28,6 +28,7 @@ Now, impliment AC__ (atomicity, consistency, isolation, durability).
 - [X] Session catalog (TransactionParticipant -> txnNumber, recovery unit (changes) )
 - [X] Multi-document transactions (based on session catalog)
 - [X] Refactor Recovery Unit
+- [ ] Commit and rollback should end current transaction
 - [X] Fully “All or Nothing” atomocity
 
 2. Consistency
@@ -50,7 +51,7 @@ Now, impliment AC__ (atomicity, consistency, isolation, durability).
 2. Redesign filters? (mb include limits etc. inside)
 
 3. SQL (StartDB Query Language) parsing
-- [ ] Define SQL Grammar
+- [X] Define SQL Grammar
 - [ ] Create AST (Abstract Syntax Tree)
 - [ ] Implement the Parser
 - [ ] Query Interpreter
