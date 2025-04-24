@@ -111,7 +111,7 @@ impl CollectionCatalog {
     }
 }
 
-pub const DOCUMENT_DELETED: usize = 0;
+pub const DOCUMENT_FLAG_DELETED: usize = 0;
 pub const DOCUMENT_RESERVED: usize = 1;
 const DOCUMENT_NEXT_DOCUMENT_OFFSET: usize = 4;
 pub const DOCUMENT_CONTENT_LENGHT_OFFSET: usize = 12;
@@ -160,6 +160,10 @@ impl RawDocument {
     pub fn parse_content(ss: &RecoveryUnit, offset: usize, content_length: usize) -> Vec<u8> {
         ss.effective_view(offset+DOCUMENT_CONTENT_OFFSET, content_length)
             .to_vec()
+    }
+
+    pub fn write_flag_deleted(mut rc_unit: RefMut<'_, RecoveryUnit>, offset: usize, deleted: bool) {
+        rc_unit.write(offset+DOCUMENT_FLAG_DELETED, &[deleted as u8]);
     }
 
     pub fn write_next_document(mut rc_unit: RefMut<'_, RecoveryUnit>, offset: usize, next_offset: usize) {
