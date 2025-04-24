@@ -51,6 +51,9 @@ Now, impliment AC__ (atomicity, consistency, isolation, durability).
 
 3. SQL (StartDB Query Language) parsing
 - [ ] Define SQL Grammar
+- [ ] Create AST (Abstract Syntax Tree)
+- [ ] Implement the Parser
+- [ ] Query Interpreter
 
 4. Stabilization
 - [ ] Redesign ensure capacity
