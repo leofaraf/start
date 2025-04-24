@@ -47,9 +47,21 @@ fn main() -> HandleResult<()> {
     session.start_transaction();
     
     session.insert("american-ai", &Agent {
+        name: "Cloude".to_string(),
+        r#type: "AI".to_string(),
+        score: 85,
+    })?;
+
+    session.insert("american-ai", &Agent {
         name: "ChatGPT".to_string(),
         r#type: "AI".to_string(),
         score: 90,
+    })?;
+
+    session.insert("american-ai", &Agent {
+        name: "Gemini".to_string(),
+        r#type: "AI".to_string(),
+        score: 80,
     })?;
 
     session.insert("chinese-ai", &Agent {
@@ -57,12 +69,10 @@ fn main() -> HandleResult<()> {
         r#type: "AI".to_string(),
         score: 85,
     })?;
-
-    session.insert("american-ai", &Agent {
-        name: "Cloude".to_string(),
-        r#type: "AI".to_string(),
-        score: 85,
-    })?;
+    
+    session.delete()
+        .filter(Some(Filter::Gt("score".into(), Value::Integer(85))))
+        .from("american-ai")?;
 
     let result: Vec<Agent> = session.find()
         .from("american-ai")?;
@@ -77,8 +87,8 @@ fn main() -> HandleResult<()> {
 
     // output:
     // ----Collection-----
-    // Entry: Document({"name": String("ChatGPT"), "type": String("AI"), "score": Int32(85)})
-    // Entry: Document({"name": String("Cloude"), "type": String("AI"), "score": Int32(85)})
+    // Entry: Agent { name: "Cloude", type: "AI", score: 85 }
+    // Entry: Agent { name: "Gemini", type: "AI", score: 80 }
     // -------------------
     Ok(())
 }
