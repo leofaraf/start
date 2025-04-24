@@ -15,11 +15,7 @@ struct Agent {
 fn main() -> HandleResult<()> {
     let start = Instant::now();
 
-    let ctx = service_context::in_memory();
-    let db = StartDB {
-        ctx,
-    };
-
+    let db = start::db_in_memory();
     let session = db.get_session();
 
     session.start_transaction();

@@ -18,6 +18,7 @@ path = "src/main.rs"
 serde = { version = "1.0", features = ["derive"] }
 memmap2 = "0.9.5"
 bson = "2.14.0"
+sqlparser = "0.37"
 
 [dependencies.uuid]
 version = "1.16.0"

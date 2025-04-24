@@ -58,3 +58,4 @@ Now, impliment AC__ (atomicity, consistency, isolation, durability).
 
 4. Stabilization
 - [ ] Redesign ensure capacity
+- [ ] User-friendly DML, DDL
