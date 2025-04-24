@@ -19,7 +19,7 @@ in_memory/embedded (single file) database
 Add this to your `Cargo.toml`:
 ```toml
 [dependencies]
-start = "0.2"
+start = "0.2.0"
 ```
 
 # Status
@@ -45,30 +45,27 @@ fn main() -> HandleResult<()> {
     let session = db.get_session();
 
     session.start_transaction();
-
-    commands::insert::insert(&session, "american-ai", bson::to_bson(&Agent {
+    
+    session.insert("american-ai", &Agent {
         name: "ChatGPT".to_string(),
         r#type: "AI".to_string(),
-        score: 85,
-    }).unwrap());
+        score: 90,
+    })?;
 
-    commands::insert::insert(&session, "chinese-ai", bson::to_bson(&Agent {
+    session.insert("chinese-ai", &Agent {
         name: "DeepSeek".to_string(),
         r#type: "AI".to_string(),
-        score: 80,
-    }).unwrap());
-    
-    commands::insert::insert(&session, "american-ai", bson::to_bson(&Agent {
+        score: 85,
+    })?;
+
+    session.insert("american-ai", &Agent {
         name: "Cloude".to_string(),
         r#type: "AI".to_string(),
         score: 85,
-    }).unwrap());
+    })?;
 
-    let result = commands::find::find(
-        &session,
-        "american-ai",
-        None, None, None
-    );
+    let result: Vec<Agent> = session.find()
+        .from("american-ai")?;
 
     println!("----Collection-----");
     
@@ -77,8 +74,6 @@ fn main() -> HandleResult<()> {
     }
 
     println!("-------------------");
-
-    session.commit_transaction();
 
     // output:
     // ----Collection-----
