@@ -120,34 +120,6 @@ Now, impliment AC__ (atomicity, consistency, isolation, durability).
 
 3. SQL (startdb query language) parsing
 
-### quick roadmap:
-
-documnet [x]
-collection [x]
-findCollection [x]
-insertCollectionByOffset [x]
-insertOne [x]
-insertCollection [x]
-insertDML [x]
-find [x]
-findDML [x]
-find({args}) [x]
-
-- [X] bson
-- [X] Atomicity
-- [X] Durability
-- [ ] session catalog (TransactionParticipant -> txnNumber, recovery unit (changes) )
-- [ ] Consistency (almost, check about collection catalog)
-- [ ] Isolation
-- [ ] limit
-- [ ] insertMany
-- [ ] storage-pages
-- [ ] delete
-- [ ] make lazy col. check if collection catalog lookup don't find
-- [ ] indexes
-- [ ] SQL parsing
-- [ ] Concurency (RwLock)
-
 ## How does it works?
 
 Based on `start-storage` crate, database first keeps 100 bytes header.
