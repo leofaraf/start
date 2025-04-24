@@ -20,12 +20,6 @@ pub fn insert(
 
     ops::insert::insert(&mut op_ctx, meta, &content);
 
-    // let mut binding = catalog.borrow_mut();
-    // let col = binding.collection_metadata.get_mut(collection).unwrap();
-    // if col.next_document == 0 {
-    //     col.next_document = new_doc_id;
-    // };
-
     if session.transaction().borrow().is_none() {
         op_ctx.rc_unit().borrow_mut().commit();
     }

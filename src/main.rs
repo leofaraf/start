@@ -1,6 +1,7 @@
 use std::{error::Error, time::Instant};
 
 use serde::{Deserialize, Serialize};
+use start::db::query::filtering::{Filter, Value};
 
 type HandleResult<T> = Result<T, Box<dyn Error>>;
 
@@ -36,6 +37,10 @@ fn main() -> HandleResult<()> {
         r#type: "AI".to_string(),
         score: 85,
     })?;
+    
+    session.delete()
+        .filter(Some(Filter::Gt("score".into(), Value::Integer(85))))
+        .from("american-ai")?;
 
     let result: Vec<Agent> = session.find()
         .from("american-ai")?;

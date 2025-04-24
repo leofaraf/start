@@ -11,7 +11,7 @@ pub struct FindQuery<'a> {
 }
 
 impl <'a>FindQuery<'a> {
-    pub fn from<T>(&mut self, collection: &str)-> HandleResult<Vec<T>>
+    pub fn from<T>(mut self, collection: &str)-> HandleResult<Vec<T>>
     where T: DeserializeOwned {
         let raw_results = db::commands::find::find(
             self.session,
@@ -36,11 +36,31 @@ impl <'a>FindQuery<'a> {
     }
 }
 
+pub struct DeleteQuery<'a> {
+    session: &'a Session,
+    filter: Option<Filter>,
+}
+
+impl <'a>DeleteQuery<'a> {
+    pub fn filter(mut self, filter: Option<Filter>) -> Self {
+        self.filter = filter;
+        self
+    }
+
+    pub fn from(mut self, collection: &str) -> HandleResult<()> {
+        db::commands::delete::delete(self.session, collection, self.filter.take())
+    }
+}
+
 impl Session {
     pub fn insert<T>(&self, collection: &str, document: T) -> HandleResult<()>
     where T: Serialize {
         db::commands::insert::insert(self, collection, bson::to_bson(&document)?);
         Ok(())
+    }
+
+    pub fn delete(&self) -> DeleteQuery {
+        DeleteQuery { session: self, filter: None }
     }
 
     pub fn find(&self) -> FindQuery {
