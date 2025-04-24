@@ -1,7 +1,6 @@
-use std::{error::Error, rc::Rc, time::Instant};
+use std::{error::Error, time::Instant};
 
 use serde::{Deserialize, Serialize};
-use start::{db::{commands, operation_context::OperationContext, service_context}, StartDB};
 
 type HandleResult<T> = Result<T, Box<dyn Error>>;
 
@@ -19,30 +18,27 @@ fn main() -> HandleResult<()> {
     let session = db.get_session();
 
     session.start_transaction();
-
-    commands::insert::insert(&session, "american-ai", bson::to_bson(&Agent {
+    
+    session.insert("american-ai", &Agent {
         name: "ChatGPT".to_string(),
         r#type: "AI".to_string(),
-        score: 85,
-    }).unwrap());
+        score: 90,
+    })?;
 
-    commands::insert::insert(&session, "chinese-ai", bson::to_bson(&Agent {
+    session.insert("chinese-ai", &Agent {
         name: "DeepSeek".to_string(),
         r#type: "AI".to_string(),
-        score: 80,
-    }).unwrap());
-    
-    commands::insert::insert(&session, "american-ai", bson::to_bson(&Agent {
+        score: 85,
+    })?;
+
+    session.insert("american-ai", &Agent {
         name: "Cloude".to_string(),
         r#type: "AI".to_string(),
         score: 85,
-    }).unwrap());
+    })?;
 
-    let result = commands::find::find(
-        &session,
-        "american-ai",
-        None, None, None
-    );
+    let result: Vec<Agent> = session.find()
+        .from("american-ai")?;
 
     println!("----Collection-----");
     
@@ -54,11 +50,8 @@ fn main() -> HandleResult<()> {
 
     session.rollback_transaction();
 
-    let result = commands::find::find(
-        &session,
-        "american-ai",
-        None, None, None
-    );
+    let result: Vec<Agent> = session.find()
+        .from("american-ai")?;
     
     println!("--AfterCollection--");
     

@@ -4,6 +4,7 @@ use db::{catalog::session::{Session, SessionCatalog}, service_context::{self, Se
 
 pub mod db;
 pub mod sql;
+pub mod commands;
 
 type HandleResult<T> = Result<T, Box<dyn Error>>;
 
