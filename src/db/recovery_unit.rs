@@ -1,16 +1,32 @@
-use std::{cell::{RefCell, RefMut}, rc::Rc};
+use std::{cell::RefCell, rc::Rc};
 
 use super::storage::start_storage::StartStorage;
 
+/// Write operation, contains information:
+/// 
+/// Offset to certain place in physical db
+/// 
+/// Old-data for rollback
+/// 
+/// New data to write for commit
 pub struct WriteOp {
-    pub offset: usize,
-    pub new_data: Vec<u8>,
-    pub old_data: Vec<u8>,
+    offset: usize,
+    new_data: Vec<u8>,
+    old_data: Vec<u8>,
 }
 
+/// RecoveryUnit is core concept of database
+/// 
+/// It provides utils for `Atomic transactions`
+/// 
+/// Stores changes that user written inside
+///
+/// Commit it to storage on commit operation,
+/// 
+/// or rollback it
 pub struct RecoveryUnit {
-    pub storage: Rc<RefCell<StartStorage>>,
-    pub pending_ops: Vec<WriteOp>,
+    storage: Rc<RefCell<StartStorage>>,
+    pending_ops: Vec<WriteOp>,
     committed: bool
 }
 
@@ -23,8 +39,8 @@ impl RecoveryUnit {
         }
     }
 
+    /// Operation to add pending operation, that might be written on storage on commit
     pub fn write(&mut self, offset: usize, data: &[u8]) {
-        // Capture the current data for rollback
         let old = self.storage.borrow()[offset..offset+data.len()].to_vec();
 
         self.pending_ops.push(WriteOp {
@@ -34,6 +50,7 @@ impl RecoveryUnit {
         });
     }
 
+    /// Apply all actual pending operations
     pub fn commit(&mut self) {
         let mut ss = self.storage.borrow_mut();
         for op in self.pending_ops.iter() {
@@ -44,15 +61,12 @@ impl RecoveryUnit {
         self.committed = true;
     }
 
+    /// Clear pending operations
     pub fn rollback(&mut self) {
-        let mut ss = self.storage.borrow_mut();
-        for op in self.pending_ops.iter().rev() {
-            println!("Rolling back op");
-            ss[op.offset..op.offset+op.old_data.len()].copy_from_slice(&op.old_data);
-        }
         self.pending_ops.clear();
     }
 
+    /// Gives actual content of database with apply of recovery unit context
     pub fn effective_view(&self, offset: usize, len: usize) -> Vec<u8> {
         // Start with the base data from the storage
         let mut result = self.storage.borrow()[offset..offset + len].to_vec();
@@ -85,6 +99,7 @@ impl RecoveryUnit {
     }
 }
 
+/// Like RAII in Mongo DB
 impl Drop for RecoveryUnit {
     fn drop(&mut self) {
         if !self.committed {
