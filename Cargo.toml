@@ -1,8 +1,8 @@
 [package]
 name = "start"
-version = "0.2.0"
+version = "0.2.1"
 edition = "2024"
-description = "Start – Your embedded database."
+description = "StartDB – Embedded NoSQL Database in Rust"
 authors = ["Leon Farafonov <me@leofaraf.com>"]
 license = "MIT"
 
