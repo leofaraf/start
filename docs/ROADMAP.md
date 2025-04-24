@@ -18,6 +18,7 @@
 
 4. Delete
 - [ ] Delete operation by filters
+- [ ] Create _system_trash
 
 ### ACID
 

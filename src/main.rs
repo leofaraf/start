@@ -21,19 +21,25 @@ fn main() -> HandleResult<()> {
     session.start_transaction();
     
     session.insert("american-ai", &Agent {
-        name: "ChatGPT".to_string(),
-        r#type: "AI".to_string(),
-        score: 90,
-    })?;
-
-    session.insert("chinese-ai", &Agent {
-        name: "DeepSeek".to_string(),
+        name: "Cloude".to_string(),
         r#type: "AI".to_string(),
         score: 85,
     })?;
 
     session.insert("american-ai", &Agent {
-        name: "Cloude".to_string(),
+        name: "ChatGPT".to_string(),
+        r#type: "AI".to_string(),
+        score: 90,
+    })?;
+
+    session.insert("american-ai", &Agent {
+        name: "Gemini".to_string(),
+        r#type: "AI".to_string(),
+        score: 80,
+    })?;
+
+    session.insert("chinese-ai", &Agent {
+        name: "DeepSeek".to_string(),
         r#type: "AI".to_string(),
         score: 85,
     })?;

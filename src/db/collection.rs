@@ -46,11 +46,12 @@ impl Collection {
         println!("Last: {}", last);
 
         let rc_unit = op_ctx.rc_unit();
-                
+        
+        RawDocument::write_flag_deleted(rc_unit.borrow_mut(), allocated_space, false);
         println!("Length");
-        rc_unit.borrow_mut().write(allocated_space + DOCUMENT_CONTENT_LENGHT_OFFSET, &data.len().to_le_bytes());
+        RawDocument::write_content_length(rc_unit.borrow_mut(), allocated_space, data.len());
         println!("Content");
-        rc_unit.borrow_mut().write(allocated_space + DOCUMENT_CONTENT_OFFSET, data);
+        RawDocument::write_content(rc_unit.borrow_mut(), allocated_space, data);
         println!("Linking");
         if last == 0 {
             rc_unit.borrow_mut().write(self.offset + DOCUMENT_CONTENT_OFFSET + 32, &allocated_space.to_le_bytes());
@@ -62,7 +63,18 @@ impl Collection {
         allocated_space
     }
 
-    pub fn delete_document() {}
+    pub fn delete_document(
+        &self,
+        op_ctx: &mut OperationContext,
+        offset: usize
+    ) {
+        RawDocument::write_flag_deleted(
+            op_ctx.rc_unit().borrow_mut(),
+            offset,
+            true
+        );
+    }
+
     pub fn find_doc() {}
     pub fn get_indexes() {}
     pub fn truncate() {}

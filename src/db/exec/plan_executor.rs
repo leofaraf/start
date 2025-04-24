@@ -13,6 +13,10 @@ pub fn execute_plan(op_ctx: OperationContext, plan: QueryPlan) -> Vec<Bson> {
     while next_offset != 0 {
         let raw_doc = RawDocument::parse(&rc_unit.borrow(), next_offset);
         println!("RawDoc: {:?}", raw_doc);
+        if raw_doc.flag_deleted {
+            next_offset = raw_doc.next_document as usize;
+            continue;
+        }
 
         if let Ok(text) = std::str::from_utf8(&raw_doc.content) {
             println!("{}. '{}'", next_offset, text);
@@ -28,7 +32,6 @@ pub fn execute_plan(op_ctx: OperationContext, plan: QueryPlan) -> Vec<Bson> {
 
         next_offset = raw_doc.next_document as usize;
     }
-
 
     result
 }

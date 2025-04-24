@@ -135,7 +135,7 @@ impl RawDocument {
     pub fn parse_flag_deleted(ss: &RecoveryUnit, offset: usize) -> bool {
         ss
             .effective_view(
-                offset+DOCUMENT_NEXT_DOCUMENT_OFFSET, 1
+                offset+DOCUMENT_FLAG_DELETED, 1
             )[0]
             != 0
     }
