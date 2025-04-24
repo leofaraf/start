@@ -6,8 +6,32 @@
 
 in_memory/embedded (single file) database
 
-### Example of using in code
+# Features
 
+- Simple API ✨.
+- Transparent serialization/deserialization using `serde`.
+- ACID-compliant, transaction (Mongo-Inspired).
+- Powerful querying system (`filters`, `limit`, `skip` and aggregation is in development)
+- It's own SQL dialect (StartDB Query Language)
+
+# Installation
+
+Add this to your `Cargo.toml`:
+```toml
+[dependencies]
+start = "0.2"
+```
+
+# Status
+
+Active development. The API is not stable yet and may change in the future.
+
+# How to use?
+
+- [Documentation API](doc)
+- [Quick Start](quick-start)
+
+# Example
 ```rust
 #[derive(Serialize, Deserialize, Debug)]
 struct Agent {
