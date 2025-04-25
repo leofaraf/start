@@ -1,11 +1,15 @@
 # StartDB
 
+[![Crates.io](https://img.shields.io/crates/v/start)](https://crates.io/crates/start)
+[![Documentation](https://docs.rs/start/badge.svg)](https://docs.rs/start)
+![GitHub License](https://img.shields.io/github/license/leofaraf/start)
+
 A lightweight, in-memory/embedded (single-file) ACID-compliant database designed for simplicity and flexibility.
 
 # Features
 
-- Embedded & In-Memory: Data lives in memory or a single file—ideal for CLI tools, bots, or lightweight services.
 - Simple API ✨.
+- Embedded & In-Memory: Data lives in memory or a single file—ideal for CLI tools, bots, or lightweight services.
 - ACID Transactions: Mongo-inspired session-based transactions.
 - Powerful Querying: Supports filter, limit, skip (aggregations and joins coming soon).
 - Serde Support: Transparent serialization and deserialization using serde.
