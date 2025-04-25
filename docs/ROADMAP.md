@@ -14,7 +14,7 @@
 - [ ] Indexing (B+tree)
 
 3. Update
-- [ ] Simple bulk update by filter
+- [X] Simple bulk update by filter
 
 4. Delete
 - [X] Delete operation by filters
