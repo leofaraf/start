@@ -57,8 +57,8 @@ pub struct DeleteQuery<'a> {
 }
 
 impl <'a>DeleteQuery<'a> {
-    pub fn filter(mut self, filter: Option<Filter>) -> Self {
-        self.filter = filter;
+    pub fn filter(mut self, filter: Filter) -> Self {
+        self.filter = Some(filter);
         self
     }
 

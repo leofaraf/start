@@ -53,7 +53,7 @@ fn main() -> HandleResult<()> {
         .from("american-ai")?;
 
     // session.delete()
-    //     .filter(Some(Filter::Gt("score".into(), Value::Integer(85))))
+    //     .filter(Filter::Gt("score".into(), Value::Integer(85)))
     //     .from("american-ai")?;
 
     let result: Vec<Agent> = session.find()
