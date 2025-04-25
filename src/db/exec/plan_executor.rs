@@ -1,9 +1,10 @@
 use bson::Bson;
+use log::trace;
 
 use crate::{db::{catalog::collection::RawDocument, operation_context::OperationContext, query::{filtering::{matches_filter, Filter}, query_planner::{PlanNode, QueryPlan}}}, HandleResult};
 
 pub fn execute_plan(op_ctx: OperationContext, plan: QueryPlan) -> HandleResult<Vec<Bson>> {
-    println!("Executing QueryPlan: {:?}", plan);
+    trace!("Executing QueryPlan: {:?}", plan);
 
     // Unwrap the plan chain to extract settings
     let PlanParams {
@@ -13,7 +14,7 @@ pub fn execute_plan(op_ctx: OperationContext, plan: QueryPlan) -> HandleResult<V
         scan_node,
     } = extract_plan_params(&plan.root);
 
-    println!("F: {:?}", filter);
+    trace!("F: {:?}", filter);
 
     // Begin executing the actual scan
     let mut result = Vec::new();
@@ -35,7 +36,6 @@ pub fn execute_plan(op_ctx: OperationContext, plan: QueryPlan) -> HandleResult<V
 
         // Apply filter
         if let Some(ref cond) = filter {
-            println!("FILTER");
             if !matches_filter(&doc, cond) {
                 continue;
             }

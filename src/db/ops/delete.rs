@@ -1,3 +1,5 @@
+use log::trace;
+
 use crate::{db::{catalog::collection::RawDocument, collection::Collection, operation_context::OperationContext, query::filtering::{self, Filter}}, HandleResult};
 
 pub fn delete(
@@ -15,7 +17,7 @@ pub fn delete(
             next_offset = raw_doc.next_document as usize;
             continue;
         }
-        println!("RawDoc: {:?}", raw_doc);
+        trace!("RawDoc: {:?}", raw_doc);
 
         let doc = bson::from_slice(&raw_doc.content)?;
         if let Some(filter) = &filter {

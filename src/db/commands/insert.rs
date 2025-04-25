@@ -1,4 +1,5 @@
 use bson::Bson;
+use log::trace;
 
 use crate::{db::{catalog::{collection::RawDocument, session::Session}, operation_context::OperationContext, ops, service_context::ServiceContext}, HandleResult};
 
@@ -7,7 +8,7 @@ pub fn insert(
     collection: &str,
     document: Bson
 ) -> HandleResult<()> {
-    println!("__________________Insert____________________");
+    trace!("__________________Insert____________________");
     let mut op_ctx = OperationContext::new(session)?;
 
     let catalog = 
@@ -23,7 +24,7 @@ pub fn insert(
     if session.transaction().borrow().is_none() {
         op_ctx.rc_unit().borrow_mut().commit();
     }
-    println!("___________________________________________");
+    trace!("___________________________________________");
 
     Ok(())
 }

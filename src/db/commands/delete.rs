@@ -1,3 +1,5 @@
+use log::trace;
+
 use crate::{db::{catalog::{collection::RawDocument, session::Session}, operation_context::OperationContext, ops, query::filtering::Filter, service_context::ServiceContext}, HandleResult};
 
 pub fn delete(
@@ -5,7 +7,7 @@ pub fn delete(
     collection: &str,
     filter: Option<Filter>,
 ) -> HandleResult<()> {
-    println!("__________________Delete____________________");
+    trace!("__________________Delete____________________");
     let mut op_ctx = OperationContext::new(session)?;
 
     let autocol = 
@@ -19,7 +21,7 @@ pub fn delete(
     if session.transaction().borrow().is_none() {
         op_ctx.rc_unit().borrow_mut().commit();
     }
-    println!("___________________________________________");
+    trace!("___________________________________________");
 
     Ok(())
 }

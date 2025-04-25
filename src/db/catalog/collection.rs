@@ -1,6 +1,7 @@
 use std::{cell::RefMut, collections::HashMap, str};
 
 use bson::Bson;
+use log::trace;
 
 use crate::db::{collection::{Collection, _SYSTEM_MASTER}, operation_context::OperationContext, ops::insert::insert, recovery_unit::RecoveryUnit};
 
@@ -26,7 +27,7 @@ impl CollectionCatalog {
     pub fn lookup_collection(&self, op_ctx: &OperationContext, colname: &str) -> Collection {
         let mut next_document = _SYSTEM_MASTER.next_document;
 
-        println!("Colname: {}", colname);
+        trace!("Colname: {}", colname);
 
         let rc_unit = op_ctx.rc_unit();
 
@@ -36,11 +37,11 @@ impl CollectionCatalog {
 
             if let Ok(text) = std::str::from_utf8(&name) {
                 let text = text.trim_matches('\0');
-                println!("text: '{}', colname: '{}'", text, colname);
+                trace!("text: '{}', colname: '{}'", text, colname);
                 if text.eq(colname) {
-                    println!("equals");
+                    trace!("equals");
                     let next_d = rc_unit.borrow().effective_view(next_document + DOCUMENT_CONTENT_OFFSET, 40);
-                    println!("NextD: {:?} ({})", next_d, next_document);
+                    trace!("NextD: {:?} ({})", next_d, next_document);
 
                     let col_next_document = Collection::parse_next_document(&rc_unit.borrow(), 
                         next_document + DOCUMENT_CONTENT_OFFSET);
@@ -51,7 +52,7 @@ impl CollectionCatalog {
                         offset: next_document,
                     };
 
-                    println!("Col: {:?}", collection);
+                    trace!("Col: {:?}", collection);
 
                     return collection;
                 }
@@ -62,7 +63,7 @@ impl CollectionCatalog {
 
         let col = Collection::new(colname, 0);
 
-        println!("Col: {:?}", col);
+        trace!("Col: {:?}", col);
 
         col
     }
@@ -70,7 +71,7 @@ impl CollectionCatalog {
     pub fn acquire_collection_or_create(&mut self, colname: &str, op_ctx: &mut OperationContext) -> Collection {
         let mut next_document = _SYSTEM_MASTER.next_document;
 
-        println!("Colname: {}", colname);
+        trace!("Colname: {}", colname);
         let rc_unit = op_ctx.rc_unit();
 
         while next_document != 0 {
@@ -79,9 +80,9 @@ impl CollectionCatalog {
 
             if let Ok(text) = std::str::from_utf8(&name) {
                 let text = text.trim_matches('\0');
-                println!("text: '{}', colname: '{}'", text, colname);
+                trace!("text: '{}', colname: '{}'", text, colname);
                 if text.eq(colname) {
-                    println!("equals");
+                    trace!("equals");
                     let col_next_document = Collection::parse_next_document(&rc_unit.borrow(), 
                         next_document + DOCUMENT_CONTENT_OFFSET);
 
@@ -90,7 +91,7 @@ impl CollectionCatalog {
                         next_document: col_next_document,
                         offset: next_document,
                     };
-                    println!("Col aq: {:?}", collection);
+                    trace!("Col aq: {:?}", collection);
 
                     return collection;
                 }
@@ -106,7 +107,7 @@ impl CollectionCatalog {
             &collection.to_bytes());
 
         collection.offset = col_offset;
-        println!("Col aq: {:?}", collection);
+        trace!("Col aq: {:?}", collection);
 
         collection
     }

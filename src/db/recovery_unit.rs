@@ -1,5 +1,7 @@
 use std::{cell::RefCell, rc::Rc};
 
+use log::trace;
+
 use super::storage::start_storage::StartStorage;
 
 /// Write operation, contains information:
@@ -54,8 +56,8 @@ impl RecoveryUnit {
     pub fn commit(&mut self) {
         let mut ss = self.storage.borrow_mut();
         for op in self.pending_ops.iter() {
-            println!("Commiting op");
-            println!("{}: '{:?}' to '{:?}'", op.offset, op.old_data, op.new_data);
+            trace!("Commiting op");
+            trace!("{}: '{:?}' to '{:?}'", op.offset, op.old_data, op.new_data);
             ss[op.offset..op.offset+op.new_data.len()].copy_from_slice(&op.new_data);
         }
         self.committed = true;

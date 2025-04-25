@@ -1,5 +1,7 @@
 use std::{cell::{Ref, RefCell}, rc::Rc};
 
+use log::trace;
+
 use super::{catalog::collection::{RawDocument, DOCUMENT_CONTENT_LENGHT_OFFSET, DOCUMENT_CONTENT_OFFSET}, operation_context::OperationContext, recovery_unit::RecoveryUnit, storage::{record_state, start_storage::StartStorage}};
 
 #[derive(Debug, Clone)]
@@ -41,22 +43,22 @@ impl Collection {
     ) -> usize {
         let storage = op_ctx.storage();
         let allocated_space = record_state::allocate_extent(storage.borrow_mut(), data.len());
-        println!("Allotaed: {}", allocated_space);
+        trace!("Allotaed: {}", allocated_space);
         let last = self.last_document(&op_ctx.rc_unit().borrow());
-        println!("Last: {}", last);
+        trace!("Last: {}", last);
 
         let rc_unit = op_ctx.rc_unit();
         
         RawDocument::write_flag_deleted(rc_unit.borrow_mut(), allocated_space, false);
-        println!("Length");
+        trace!("Length");
         RawDocument::write_content_length(rc_unit.borrow_mut(), allocated_space, data.len());
-        println!("Content");
+        trace!("Content");
         RawDocument::write_content(rc_unit.borrow_mut(), allocated_space, data);
-        println!("Linking");
+        trace!("Linking");
         if last == 0 {
             rc_unit.borrow_mut().write(self.offset + DOCUMENT_CONTENT_OFFSET + 32, &allocated_space.to_le_bytes());
             let next_d = op_ctx.rc_unit().borrow().effective_view(self.offset + DOCUMENT_CONTENT_OFFSET, 40);
-            println!("NextD: {:?} ({})", next_d, self.offset);
+            trace!("NextD: {:?} ({})", next_d, self.offset);
         } else {
             RawDocument::write_next_document(rc_unit.borrow_mut(), last, allocated_space);
         }
