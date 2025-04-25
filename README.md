@@ -93,11 +93,3 @@ fn main() -> HandleResult<()> {
     Ok(())
 }
 ```
-
-## How does it works?
-
-Based on `start-storage` crate, database first keeps 100 bytes header.
-
-Next it (sys-master) contains tables, first system-tables (like sys-master, then sys-trash)
-
-At second, it keeps user tables. Each table is linked list.
