@@ -28,7 +28,7 @@ Early stage project — the API is experimental and subject to change.
 
 # How to use?
 
-- [Quick Start](/docs/QUICK_START.md)
+- [Quick Start](docs/QUICK_START.md)
 - [Documentation API](https://docs.rs/start)
 
 # Example
