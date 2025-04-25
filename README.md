@@ -16,7 +16,7 @@ A lightweight, in-memory/embedded (single-file) ACID-compliant database designed
 Add this to your `Cargo.toml`:
 ```toml
 [dependencies]
-start = "0.2.0"
+start = "0.4"
 ```
 
 # Status
