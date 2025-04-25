@@ -11,6 +11,21 @@ pub struct FindQuery<'a> {
 }
 
 impl <'a>FindQuery<'a> {
+    pub fn filter(mut self, filter: Filter) -> Self {
+        self.filter = Some(filter);
+        self
+    }
+
+    pub fn skip(mut self, skip: u64) -> Self {
+        self.skip = Some(skip);
+        self
+    }
+
+    pub fn limit(mut self, limit: u64) -> Self {
+        self.limit = Some(limit);
+        self
+    }
+
     pub fn from<T>(mut self, collection: &str)-> HandleResult<Vec<T>>
     where T: DeserializeOwned {
         let raw_results = db::commands::find::find(

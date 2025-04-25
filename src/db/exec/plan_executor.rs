@@ -1,37 +1,100 @@
 use bson::Bson;
 
-use crate::db::{catalog::collection::RawDocument, operation_context::OperationContext, query::query_planner::QueryPlan};
+use crate::db::{catalog::collection::RawDocument, operation_context::OperationContext, query::{filtering::{matches_filter, Filter}, query_planner::{PlanNode, QueryPlan}}};
 
 pub fn execute_plan(op_ctx: OperationContext, plan: QueryPlan) -> Vec<Bson> {
-    println!("QueryPlan: {:?}", plan);
+    println!("Executing QueryPlan: {:?}", plan);
 
-    let mut result = vec![];
-    
+    // Unwrap the plan chain to extract settings
+    let PlanParams {
+        filter,
+        skip,
+        limit,
+        scan_node,
+    } = extract_plan_params(&plan.root);
+
+    println!("F: {:?}", filter);
+
+    // Begin executing the actual scan
+    let mut result = Vec::new();
     let mut next_offset = plan.collection.next_document as usize;
     let rc_unit = op_ctx.rc_unit();
-    
+
+    let mut skipped = 0;
+    let mut returned = 0;
+
     while next_offset != 0 {
         let raw_doc = RawDocument::parse(&rc_unit.borrow(), next_offset);
-        println!("RawDoc: {:?}", raw_doc);
+        next_offset = raw_doc.next_document as usize;
+
         if raw_doc.flag_deleted {
-            next_offset = raw_doc.next_document as usize;
             continue;
         }
 
-        if let Ok(text) = std::str::from_utf8(&raw_doc.content) {
-            println!("{}. '{}'", next_offset, text);
+        let doc = bson::from_slice::<bson::Document>(&raw_doc.content).unwrap();
+
+        // Apply filter
+        if let Some(ref cond) = filter {
+            println!("FILTER");
+            if !matches_filter(&doc, cond) {
+                continue;
+            }
         }
 
-        result.push(bson::from_slice(&raw_doc.content).unwrap());
+        // Apply skip
+        if skipped < skip {
+            skipped += 1;
+            continue;
+        }
 
-        // if next_offset == plan.collection.next_document as usize {
-            // next_offset = plan.collection.next_document as usize; // Move to the next document
-        // } else {
-            // next_offset = raw_doc.next_document as usize; // Move to the next document
-        // }
+        // Apply limit
+        if let Some(l) = limit {
+            if returned >= l {
+                break;
+            }
+        }
 
-        next_offset = raw_doc.next_document as usize;
+        result.push(Bson::Document(doc));
+        returned += 1;
     }
 
     result
+}
+
+fn extract_plan_params<'a>(mut node: &'a PlanNode) -> PlanParams<'a> {
+    let mut filter = None;
+    let mut skip = 0;
+    let mut limit = None;
+
+    loop {
+        match node {
+            PlanNode::Filter { condition, child } => {
+                filter = Some(condition);
+                node = child;
+            }
+            PlanNode::Skip { skip: s, child } => {
+                skip = *s;
+                node = child;
+            }
+            PlanNode::Limit { limit: l, child } => {
+                limit = Some(*l);
+                node = child;
+            }
+            PlanNode::CollectionScan { .. } => break,
+        }
+    }
+
+    PlanParams {
+        filter,
+        skip,
+        limit,
+        scan_node: node,
+    }
+}
+
+struct PlanParams<'a> {
+    filter: Option<&'a Filter>,
+    skip: usize,
+    limit: Option<usize>,
+    scan_node: &'a PlanNode,
 }

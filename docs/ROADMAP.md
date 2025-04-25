@@ -6,6 +6,7 @@
 - [X] Basic execution
 - [ ] Handle filtering, limiting, etc.
 - [ ] Indexing (B+tree)
+- [ ] Redesign plan executor
 - [ ] Mongo-style cursor 
 
 2. Insert

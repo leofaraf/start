@@ -57,6 +57,8 @@ fn main() -> HandleResult<()> {
     //     .from("american-ai")?;
 
     let result: Vec<Agent> = session.find()
+        .filter(Filter::Gt("score".into(), Value::Integer(85)))
+        .limit(1)
         .from("american-ai")?;
 
     println!("----Collection-----");
