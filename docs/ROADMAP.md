@@ -4,7 +4,7 @@
 
 1. Find
 - [X] Basic execution
-- [ ] Handle filtering, limiting, etc.
+- [X] Handle filtering, limiting, etc.
 - [ ] Indexing (B+tree)
 - [ ] Redesign plan executor
 - [ ] Mongo-style cursor 
