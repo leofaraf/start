@@ -1,10 +1,11 @@
 [package]
 name = "start"
-version = "0.4.3"
+version = "0.4.4"
 edition = "2024"
 description = "StartDB – Embedded NoSQL Database in Rust"
 authors = ["Leon Farafonov <me@leofaraf.com>"]
 documentation = "https://docs.rs/start"
+repository = "https://github.com/leofaraf/start"
 license = "MIT"
 
 [lib]
