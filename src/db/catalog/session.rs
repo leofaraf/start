@@ -2,7 +2,7 @@ use std::{cell::RefCell, collections::HashMap, rc::{Rc, Weak}};
 
 use uuid::Uuid;
 
-use crate::db::{recovery_unit::RecoveryUnit, service_context::ServiceContext, storage::start_storage::StartStorage};
+use crate::{db::{recovery_unit::RecoveryUnit, service_context::ServiceContext, storage::start_storage::StartStorage}, HandleResult};
 
 pub struct SessionCatalog;
 impl SessionCatalog {
@@ -30,22 +30,37 @@ impl Session {
         self.transaction.clone()
     }
 
-    pub fn start_transaction(&self) {
-        self.transaction.borrow_mut().replace(Transaction::new(self.ctx().unwrap().storage()));
+    pub fn start_transaction(&self) -> HandleResult<()> {
+        let ctx = match self.ctx() {
+            Some(ctx) => ctx,
+            None => return Err("Database closed connection".into()),
+        };
+        self.transaction.borrow_mut().replace(Transaction::new(ctx.storage()));
+        Ok(())
     }
 
-    pub fn commit_transaction(&self) {
+    pub fn commit_transaction(&self) -> HandleResult<()> {
         let transaction = self.transaction.borrow_mut();
-        transaction.as_ref().unwrap().rc_unit().borrow_mut().commit();
-        drop(transaction);
-        self.transaction.replace(None);
+        if let Some(tx) = transaction.as_ref() {
+            tx.rc_unit().borrow_mut().commit();
+            drop(transaction);
+            self.transaction.replace(None);
+            Ok(())
+        } else {
+            Err("Transaction hasn't been opened".into())
+        }
     }
 
-    pub fn rollback_transaction(&self) {
+    pub fn rollback_transaction(&self) -> HandleResult<()> {
         let transaction = self.transaction.borrow_mut();
-        transaction.as_ref().unwrap().rc_unit().borrow_mut().rollback();
-        drop(transaction);
-        self.transaction.replace(None);
+        if let Some(tx) = transaction.as_ref() {
+            tx.rc_unit().borrow_mut().rollback();
+            drop(transaction);
+            self.transaction.replace(None);
+            Ok(())
+        } else {
+            Err("Transaction hasn't been opened".into())
+        }
     }
 }
 

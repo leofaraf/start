@@ -17,7 +17,7 @@ impl QueryPlanner {
         limit: Option<u64>,
     ) -> QueryPlan {
         let mut plan = PlanNode::CollectionScan {
-            collection_name: String::from_utf8(collection.name.to_vec()).unwrap(),
+            collection_name: "Whatever2refactor".to_string(),
         };
 
         if let Some(f) = filter {

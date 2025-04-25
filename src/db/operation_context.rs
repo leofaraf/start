@@ -1,5 +1,7 @@
 use std::{cell::{RefCell, RefMut}, rc::Rc};
 
+use crate::HandleResult;
+
 use super::{catalog::{session::Session, Catalog}, recovery_unit::RecoveryUnit, service_context::ServiceContext, storage::start_storage::StartStorage};
 
 pub struct OperationContext {
@@ -9,19 +11,22 @@ pub struct OperationContext {
 }
 
 impl OperationContext {
-    pub fn new(session: &Session) -> Self {
-        let ctx = session.ctx().unwrap();
+    pub fn new(session: &Session) -> HandleResult<Self> {
+        let ctx = match session.ctx() {
+            Some(ctx) => ctx,
+            None => return Err("Database closed connection".into()),
+        };
 
         let transaction = session.transaction();
 
-        Self {
+        Ok(Self {
             storage: ctx.storage(),
             catalog: ctx.catalog(),
             rc_unit: match transaction.borrow().as_ref() {
                 Some(tx) => tx.rc_unit(),
                 None => Rc::new(RefCell::new(RecoveryUnit::new(ctx.storage()))),
             },
-        }
+        })
     }
 
     pub fn storage(&self) -> Rc<RefCell<StartStorage>> {

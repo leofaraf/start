@@ -1,13 +1,13 @@
 use bson::{Bson, Document};
 
-use crate::db::{catalog::{collection::RawDocument, session::Session}, collection::Collection, operation_context::OperationContext, ops, query::filtering::{self, Filter}, service_context::ServiceContext};
+use crate::{db::{catalog::{collection::RawDocument, session::Session}, collection::Collection, operation_context::OperationContext, ops, query::filtering::{self, Filter}, service_context::ServiceContext}, HandleResult};
 
 pub fn update(
     op_ctx: &mut OperationContext,
     filter: Option<Filter>,
     update_document: Document,
     collection: &mut Collection
-) {
+) -> HandleResult<()> {
     let mut next_offset = collection.next_document as usize;
     let rc_unit = op_ctx.rc_unit();
     
@@ -20,7 +20,7 @@ pub fn update(
         }
         println!("RawDoc: {:?}", raw_doc);
 
-        let doc = bson::from_slice(&raw_doc.content).unwrap();
+        let doc = bson::from_slice(&raw_doc.content)?;
 
         if filter.as_ref().map_or(true, |f| filtering::matches_filter(&doc, f)) {
             // ✅ Handle $set update
@@ -31,7 +31,7 @@ pub fn update(
                 }
 
                 // 🚀 Serialize new document
-                let updated_bytes = bson::to_vec(&new_doc).unwrap();
+                let updated_bytes = bson::to_vec(&new_doc)?;
 
                 println!("Update filters matched. New doc: {:?}", new_doc);
 
@@ -45,4 +45,6 @@ pub fn update(
 
         next_offset = raw_doc.next_document as usize;
     }
+
+    Ok(())
 }

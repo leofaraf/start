@@ -16,10 +16,10 @@ struct Agent {
 fn main() -> HandleResult<()> {
     let start = Instant::now();
 
-    let db = start::db_in_memory();
+    let db = start::db_in_memory()?;
     let session = db.get_session();
 
-    session.start_transaction();
+    session.start_transaction()?;
     
     session.insert("american-ai", &Agent {
         name: "Cloude".to_string(),
@@ -69,7 +69,7 @@ fn main() -> HandleResult<()> {
 
     println!("-------------------");
 
-    session.rollback_transaction();
+    session.rollback_transaction()?;
 
     let result: Vec<Agent> = session.find()
         .from("american-ai")?;

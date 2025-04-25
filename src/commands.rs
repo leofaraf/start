@@ -33,7 +33,7 @@ impl <'a>FindQuery<'a> {
             collection,
             self.filter.take(), 
             self.skip,
-            self.limit);
+            self.limit)?;
 
         // Convert Vec<Bson> or Vec<Document> to Vec<T>
         let mut results = Vec::new();

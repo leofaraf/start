@@ -50,15 +50,13 @@ Now, impliment AC__ (atomicity, consistency, isolation, durability).
 - [ ] Trash (_system_trash)
 - [ ] Storage pages like in mongo
 
-2. Redesign filters? (mb include limits etc. inside)
-
-3. SQL (StartDB Query Language) parsing
+2. SQL (StartDB Query Language) parsing
 - [X] Define SQL Grammar
 - [ ] Create AST (Abstract Syntax Tree)
 - [ ] Implement the Parser
 - [ ] Query Interpreter
 
-4. Stabilization
+3. Stabilization
 - [ ] Redesign ensure capacity
 - [X] User-friendly insert, find
 - [ ] Benchmark how much memory I need

@@ -18,8 +18,8 @@ impl StartDB {
     }
 }
 
-pub fn db_in_memory() -> StartDB {
-    StartDB { ctx: service_context::in_memory() }
+pub fn db_in_memory() -> HandleResult<StartDB> {
+    Ok(StartDB { ctx: service_context::in_memory()? })
 }
 
 pub fn db_embedded(path: PathBuf) -> HandleResult<StartDB> {

@@ -9,7 +9,7 @@ pub fn update(
     collection: &str
 ) -> HandleResult<()> {
     println!("__________________Update____________________");
-    let mut op_ctx = OperationContext::new(session);
+    let mut op_ctx = OperationContext::new(session)?;
 
     let catalog = 
         op_ctx.catalog().borrow_mut()

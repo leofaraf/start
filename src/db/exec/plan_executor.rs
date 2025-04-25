@@ -1,8 +1,8 @@
 use bson::Bson;
 
-use crate::db::{catalog::collection::RawDocument, operation_context::OperationContext, query::{filtering::{matches_filter, Filter}, query_planner::{PlanNode, QueryPlan}}};
+use crate::{db::{catalog::collection::RawDocument, operation_context::OperationContext, query::{filtering::{matches_filter, Filter}, query_planner::{PlanNode, QueryPlan}}}, HandleResult};
 
-pub fn execute_plan(op_ctx: OperationContext, plan: QueryPlan) -> Vec<Bson> {
+pub fn execute_plan(op_ctx: OperationContext, plan: QueryPlan) -> HandleResult<Vec<Bson>> {
     println!("Executing QueryPlan: {:?}", plan);
 
     // Unwrap the plan chain to extract settings
@@ -31,7 +31,7 @@ pub fn execute_plan(op_ctx: OperationContext, plan: QueryPlan) -> Vec<Bson> {
             continue;
         }
 
-        let doc = bson::from_slice::<bson::Document>(&raw_doc.content).unwrap();
+        let doc = bson::from_slice::<bson::Document>(&raw_doc.content)?;
 
         // Apply filter
         if let Some(ref cond) = filter {
@@ -58,7 +58,7 @@ pub fn execute_plan(op_ctx: OperationContext, plan: QueryPlan) -> Vec<Bson> {
         returned += 1;
     }
 
-    result
+    Ok(result)
 }
 
 fn extract_plan_params<'a>(mut node: &'a PlanNode) -> PlanParams<'a> {

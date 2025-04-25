@@ -6,7 +6,7 @@ pub fn delete(
     filter: Option<Filter>,
 ) -> HandleResult<()> {
     println!("__________________Delete____________________");
-    let mut op_ctx = OperationContext::new(session);
+    let mut op_ctx = OperationContext::new(session)?;
 
     let autocol = 
         op_ctx.catalog().borrow()

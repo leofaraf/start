@@ -19,7 +19,7 @@ impl ServiceContext {
     }
 }
 
-pub fn in_memory() -> Rc<ServiceContext> {
+pub fn in_memory() -> HandleResult<Rc<ServiceContext>> {
     let raw_storage = StartStorage::in_memory();
     let storage = Rc::new(RefCell::new(raw_storage));
     let catalog = Rc::new(RefCell::new(Catalog::new(storage.clone())));
@@ -32,11 +32,11 @@ pub fn in_memory() -> Rc<ServiceContext> {
     // Init operation context
 
     let init_session = SessionCatalog::acquire(service_context.clone());
-    let mut init_op_ctx = OperationContext::new(&init_session);
+    let mut init_op_ctx = OperationContext::new(&init_session)?;
     let _header = get_header(&mut init_op_ctx);
     init_op_ctx.rc_unit().borrow_mut().commit();
 
-    service_context
+    Ok(service_context)
 }
 
 pub fn embedded(path: PathBuf) -> HandleResult<Rc<ServiceContext>> {
@@ -52,7 +52,7 @@ pub fn embedded(path: PathBuf) -> HandleResult<Rc<ServiceContext>> {
     // Init operation context
     
     let init_session = SessionCatalog::acquire(service_context.clone());
-    let mut init_op_ctx = OperationContext::new(&init_session);
+    let mut init_op_ctx = OperationContext::new(&init_session)?;
     let _header = get_header(&mut init_op_ctx);
     init_op_ctx.rc_unit().borrow_mut().commit();
 

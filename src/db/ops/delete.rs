@@ -1,10 +1,10 @@
-use crate::db::{catalog::collection::RawDocument, collection::Collection, operation_context::OperationContext, query::filtering::{self, Filter}};
+use crate::{db::{catalog::collection::RawDocument, collection::Collection, operation_context::OperationContext, query::filtering::{self, Filter}}, HandleResult};
 
 pub fn delete(
     op_ctx: &mut OperationContext,
     col: Collection,
     filter: Option<Filter>,
-) {
+) -> HandleResult<()> {
     let mut next_offset = col.next_document as usize;
     let rc_unit = op_ctx.rc_unit();
     
@@ -17,7 +17,7 @@ pub fn delete(
         }
         println!("RawDoc: {:?}", raw_doc);
 
-        let doc = bson::from_slice(&raw_doc.content).unwrap();
+        let doc = bson::from_slice(&raw_doc.content)?;
         if let Some(filter) = &filter {
             if filtering::matches_filter(&doc, filter) {
                 col.delete_document(op_ctx, next_offset);
@@ -27,4 +27,6 @@ pub fn delete(
         };
         next_offset = raw_doc.next_document as usize;
     }
+
+    Ok(())
 }
