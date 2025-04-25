@@ -17,7 +17,7 @@ pub fn update(
 
     let mut meta = catalog.borrow_mut().acquire_collection_or_create(collection, &mut op_ctx);
 
-    ops::update::update(&mut op_ctx, filter, update_document, &mut meta);
+    ops::update::update(&mut op_ctx, filter, update_document, &mut meta)?;
 
     if session.transaction().borrow().is_none() {
         op_ctx.rc_unit().borrow_mut().commit();

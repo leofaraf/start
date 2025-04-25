@@ -97,7 +97,7 @@ impl <'a>UpdateQuery<'a> {
 impl Session {
     pub fn insert<T>(&self, collection: &str, document: T) -> HandleResult<()>
     where T: Serialize {
-        db::commands::insert::insert(self, collection, bson::to_bson(&document)?);
+        db::commands::insert::insert(self, collection, bson::to_bson(&document)?)?;
         Ok(())
     }
 

@@ -1,38 +1,3 @@
-# IN DEVELOPMENT DON'T USE IN PRODUCTION (wait stabilization)
-
-* database in development and might rapidly change syntax
-
-# StartDB
-
-in_memory/embedded (single file) database
-
-# Features
-
-- Simple API ✨.
-- Transparent serialization/deserialization using `serde`.
-- ACID-compliant, transaction (Mongo-Inspired).
-- Powerful querying system (`filters`, `limit`, `skip` and aggregation is in development)
-- It's own SQL dialect soon
-
-# Installation
-
-Add this to your `Cargo.toml`:
-```toml
-[dependencies]
-start = "0.2.0"
-```
-
-# Status
-
-Early stage project — the API is experimental and subject to change.
-
-# How to use?
-
-- [Quick Start](/docs/QUICK_START.md)
-- [Documentation API](https://docs.rs/start)
-
-# Example
-```rust
 use serde::{Deserialize, Serialize};
 use start::db::query::filtering::{Filter, Value};
 
@@ -70,4 +35,3 @@ fn main() -> HandleResult<()> {
     session.commit_transaction()?;
     Ok(())
 }
-```

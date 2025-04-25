@@ -1,6 +1,6 @@
 [package]
 name = "start"
-version = "0.3.2"
+version = "0.4.0"
 edition = "2024"
 description = "StartDB – Embedded NoSQL Database in Rust"
 authors = ["Leon Farafonov <me@leofaraf.com>"]
@@ -19,7 +19,7 @@ path = "src/main.rs"
 serde = { version = "1.0", features = ["derive"] }
 memmap2 = "0.9.5"
 bson = "2.14.0"
-sqlparser = "0.55.0"
+# sqlparser = "0.55.0"
 
 [dependencies.uuid]
 version = "1.16.0"

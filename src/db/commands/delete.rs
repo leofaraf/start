@@ -14,7 +14,7 @@ pub fn delete(
 
     let meta = autocol.borrow().lookup_collection(&op_ctx, collection);
 
-    ops::delete::delete(&mut op_ctx, meta, filter);
+    ops::delete::delete(&mut op_ctx, meta, filter)?;
 
     if session.transaction().borrow().is_none() {
         op_ctx.rc_unit().borrow_mut().commit();
