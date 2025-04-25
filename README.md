@@ -1,7 +1,3 @@
-# IN DEVELOPMENT DON'T USE IN PRODUCTION (wait stabilization)
-
-* database in development and might rapidly change syntax
-
 # StartDB
 
 A lightweight, in-memory/embedded (single-file) ACID-compliant database designed for simplicity and flexibility.
