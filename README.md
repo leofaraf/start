@@ -29,9 +29,8 @@ Early stage project — the API is experimental and subject to change.
 
 # How to use?
 
-- [Quick Start](docs/QUICK_START.md)
+- [Quick Start](https://github.com/leofaraf/start/blob/master/docs/QUICK_START.md)
 - [Documentation API](https://docs.rs/start)
-- [Roadmap & Tasks](docs/ROADMAP.md)
 
 # Example
 ```rust
