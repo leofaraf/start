@@ -339,7 +339,7 @@ dependencies = [
 
 [[package]]
 name = "start"
-version = "0.3.0"
+version = "0.3.2"
 dependencies = [
  "bson",
  "memmap2",
