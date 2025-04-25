@@ -4,15 +4,16 @@
 
 # StartDB
 
-in_memory/embedded (single file) database
+A lightweight, in-memory/embedded (single-file) ACID-compliant database designed for simplicity and flexibility.
 
 # Features
 
+- Embedded & In-Memory: Data lives in memory or a single file—ideal for CLI tools, bots, or lightweight services.
 - Simple API ✨.
-- Transparent serialization/deserialization using `serde`.
-- ACID-compliant, transaction (Mongo-Inspired).
-- Powerful querying system (`filters`, `limit`, `skip` and aggregation is in development)
-- It's own SQL dialect soon
+- ACID Transactions: Mongo-inspired session-based transactions.
+- Powerful Querying: Supports filter, limit, skip (aggregations and joins coming soon).
+- Serde Support: Transparent serialization and deserialization using serde.
+- Experimental SQL dialect planned 🧪.
 
 # Installation
 
@@ -30,6 +31,7 @@ Early stage project — the API is experimental and subject to change.
 
 - [Quick Start](docs/QUICK_START.md)
 - [Documentation API](https://docs.rs/start)
+- [Roadmap & Tasks](docs/ROADMAP.md)
 
 # Example
 ```rust
