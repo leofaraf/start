@@ -62,4 +62,5 @@ Now, impliment AC__ (atomicity, consistency, isolation, durability).
 - [ ] Benchmark how much memory I need
 - [ ] Redesign some function argument to BSON
 - [X] Errors redesign
-- [ ] Create database error master type 
+- [ ] Create database error master type
+- [ ] Release first version (logging, check in file DB)
