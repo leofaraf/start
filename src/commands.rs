@@ -1,4 +1,4 @@
-use bson::Bson;
+use bson::{doc, Bson, Document};
 use serde::{de::DeserializeOwned, Serialize};
 
 use crate::{db::{self, catalog::session::Session, query::filtering::Filter}, HandleResult};
@@ -52,6 +52,33 @@ impl <'a>DeleteQuery<'a> {
     }
 }
 
+pub struct UpdateQuery<'a> {
+    session: &'a Session,
+    filter: Option<Filter>,
+    update_document: Document,
+}
+
+impl <'a>UpdateQuery<'a> {
+    pub fn filter(mut self, filter: Filter) -> Self {
+        self.filter = Some(filter);
+        self
+    }
+
+    pub fn set(mut self, document: Document) -> Self {
+        self.update_document.insert("$set", document);
+        self
+    }
+
+    pub fn from(mut self, collection: &str) -> HandleResult<()> {
+        db::commands::update::update(
+            self.session,
+            self.filter.take(),
+            self.update_document,
+            collection,
+        )
+    }
+}
+
 impl Session {
     pub fn insert<T>(&self, collection: &str, document: T) -> HandleResult<()>
     where T: Serialize {
@@ -65,5 +92,9 @@ impl Session {
 
     pub fn find(&self) -> FindQuery {
         FindQuery { session: self, filter: None, skip: None, limit: None }
+    }
+
+    pub fn update(&self) -> UpdateQuery {
+        UpdateQuery { session: self, filter: None, update_document: Document::new() }
     }
 }

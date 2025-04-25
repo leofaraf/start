@@ -35,7 +35,7 @@ impl Collection {
     }
 
     pub fn insert_document(
-        self,
+        &mut self,
         op_ctx: &mut OperationContext,
         data: &[u8]
     ) -> usize {

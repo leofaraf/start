@@ -22,6 +22,8 @@ pub fn delete(
             if filtering::matches_filter(&doc, filter) {
                 col.delete_document(op_ctx, next_offset);
             }
+        } else {
+            col.delete_document(op_ctx, next_offset);
         };
         next_offset = raw_doc.next_document as usize;
     }

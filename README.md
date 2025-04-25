@@ -12,7 +12,7 @@ in_memory/embedded (single file) database
 - Transparent serialization/deserialization using `serde`.
 - ACID-compliant, transaction (Mongo-Inspired).
 - Powerful querying system (`filters`, `limit`, `skip` and aggregation is in development)
-- It's own SQL dialect (StartDB Query Language)
+- It's own SQL dialect soon
 
 # Installation
 

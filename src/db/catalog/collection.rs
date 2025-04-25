@@ -101,7 +101,8 @@ impl CollectionCatalog {
 
         let mut collection = Collection::new(colname, 0);
 
-        let col_offset = insert(op_ctx, _SYSTEM_MASTER, 
+        let mut master = _SYSTEM_MASTER;
+        let col_offset = insert(op_ctx, &mut master, 
             &collection.to_bytes());
 
         collection.offset = col_offset;

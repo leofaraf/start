@@ -16,9 +16,9 @@ pub fn insert(
 
     let content = bson::to_vec(&document).unwrap();
     
-    let meta = catalog.borrow_mut().acquire_collection_or_create(collection, &mut op_ctx);
+    let mut meta = catalog.borrow_mut().acquire_collection_or_create(collection, &mut op_ctx);
 
-    ops::insert::insert(&mut op_ctx, meta, &content);
+    ops::insert::insert(&mut op_ctx, &mut meta, &content);
 
     if session.transaction().borrow().is_none() {
         op_ctx.rc_unit().borrow_mut().commit();

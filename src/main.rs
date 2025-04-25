@@ -1,5 +1,6 @@
 use std::{error::Error, time::Instant};
 
+use bson::doc;
 use serde::{Deserialize, Serialize};
 use start::db::query::filtering::{Filter, Value};
 
@@ -44,9 +45,16 @@ fn main() -> HandleResult<()> {
         score: 85,
     })?;
     
-    session.delete()
-        .filter(Some(Filter::Gt("score".into(), Value::Integer(85))))
+    session.update()
+        .filter(Filter::Eq("name".into(), Value::String("Cloude".into())))
+        .set(doc! {
+            "score": 90
+        })
         .from("american-ai")?;
+
+    // session.delete()
+    //     .filter(Some(Filter::Gt("score".into(), Value::Integer(85))))
+    //     .from("american-ai")?;
 
     let result: Vec<Agent> = session.find()
         .from("american-ai")?;

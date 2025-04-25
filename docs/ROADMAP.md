@@ -61,3 +61,4 @@ Now, impliment AC__ (atomicity, consistency, isolation, durability).
 - [ ] Redesign ensure capacity
 - [X] User-friendly insert, find
 - [ ] Benchmark how much memory I need
+- [ ] Redesign some function argument to BSON

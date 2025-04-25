@@ -2,7 +2,7 @@ use crate::db::{catalog::collection::RawDocument, collection::Collection, operat
 
 pub fn insert(
     op_ctx: &mut OperationContext,
-    col: Collection,
+    col: &mut Collection,
     data: &[u8]
 ) -> usize {
     col.insert_document(op_ctx, data)
