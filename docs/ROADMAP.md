@@ -30,7 +30,7 @@ Now, impliment AC__ (atomicity, consistency, isolation, durability).
 - [X] Session catalog (TransactionParticipant -> txnNumber, recovery unit (changes) )
 - [X] Multi-document transactions (based on session catalog)
 - [X] Refactor Recovery Unit
-- [ ] Commit and rollback should end current transaction
+- [X] Commit and rollback should end current transaction
 - [X] Fully “All or Nothing” atomocity
 
 2. Consistency
@@ -61,4 +61,5 @@ Now, impliment AC__ (atomicity, consistency, isolation, durability).
 - [X] User-friendly insert, find
 - [ ] Benchmark how much memory I need
 - [ ] Redesign some function argument to BSON
-- [ ] Errors redesign
+- [X] Errors redesign
+- [ ] Create database error master type 
