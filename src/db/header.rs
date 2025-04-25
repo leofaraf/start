@@ -13,7 +13,7 @@ use super::{
 pub fn get_header(op_ctx: &mut OperationContext) -> HandleResult<Header> {
     let storage = op_ctx.storage();
 
-    if storage.borrow().len() != 0 {
+    if storage.borrow().len() == 0 {
         insert_one_by_offset(op_ctx, _SYSTEM_MASTER.offset, RawDocument {
             flag_deleted: false,
             next_document: 0,

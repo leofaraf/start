@@ -14,7 +14,7 @@ pub fn insert_one_by_offset(
     raw_document: RawDocument
 ) -> HandleResult<()> {
     let rc_unit = op_ctx.rc_unit();
-    if !ensure_capacity(&mut op_ctx.storage().borrow_mut(), offset + raw_document.len()).is_err() {
+    if ensure_capacity(&mut op_ctx.storage().borrow_mut(), offset + raw_document.len()).is_err() {
         return Err("Database capacity error".into());
     }
     RawDocument::write_next_document(rc_unit.borrow_mut(), offset, 0);
