@@ -6,6 +6,8 @@
 
 A lightweight, in-memory/embedded (single-file) ACID-compliant database designed for simplicity and flexibility.
 
+P.S. don't use 'update' for now, working on optimization
+
 # Features
 
 - Simple API ✨.
